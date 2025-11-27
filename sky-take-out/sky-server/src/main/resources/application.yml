@@ -1,0 +1,42 @@
+spring:
+  profiles:
+    active: dev #配置环境信息
+  main:
+    allow-circular-references: true #配置自动解决循环依赖
+  datasource: #配置数据库连接信息
+    druid:
+      driver-class-name: ${sky.datasource.driver-class-name}
+      url: jdbc:mysql://${sky.datasource.host}:${sky.datasource.port}/${sky.datasource.database}?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+      username: ${sky.datasource.username}
+      password: ${sky.datasource.password}
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher #设置SpringMVC的路径匹配方式与Swagger的路径匹配方式一致.
+  redis:
+    host: ${sky.redis.host}
+    port: ${sky.redis.port}
+    database: ${sky.redis.database}
+    password: ${sky.redis.password}
+
+
+#Mybatis的配置信息
+mybatis:
+  mapper-locations: classpath:mapper/*.xml  #mapper配置文件
+  configuration:
+    map-underscore-to-camel-case: true  #开启驼峰命名
+
+#配置日志级别
+logging:
+  level:
+    com:
+      sky:
+        mapper: debug
+        service: info
+        controller: info
+
+#配置JWT的信息
+sky:
+  jwt:
+    admin-secret-key: itcast #设置jwt签名加密时使用的秘钥
+    admin-ttl: 7200000 #设置jwt过期时间
+    admin-token-name: token #设置前端传递过来的令牌名称

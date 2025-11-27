@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <groupId>org.springframework.boot</groupId>
+        <version>2.7.10</version>
+    </parent>
+
+    <groupId>com.sky</groupId>
+    <artifactId>sky-take-out</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0-SNAPSHOT</version>
+
+    <!--聚合的模块-->
+    <modules>
+        <module>sky-common</module>
+        <module>sky-pojo</module>
+        <module>sky-server</module>
+    </modules>
+
+    <!--自定义属性-->
+    <properties>
+        <java.version>11</java.version>
+        <mybatis.spring.version>2.3.0</mybatis.spring.version>
+        <lombok.version>1.18.24</lombok.version>
+        <fastjson.version>1.2.76</fastjson.version>
+        <commons.lang.version>2.6</commons.lang.version>
+        <druid.version>1.2.8</druid.version>
+        <pagehelper.version>1.4.2</pagehelper.version>
+        <aliyun.sdk.oss.version>3.15.1</aliyun.sdk.oss.version>
+        <knife4j.version>3.0.2</knife4j.version>
+        <jjwt.version>0.9.1</jjwt.version>
+        <jaxb-api.version>2.3.1</jaxb-api.version>
+        <poi.version>4.1.2</poi.version>
+        <jackson.version>2.13.5</jackson.version>
+        <wechat.version>0.4.8</wechat.version>
+    </properties>
+
+
+    <!--统一管理依赖的版本-->
+    <dependencyManagement>
+        <dependencies>
+            <!--Mybatis起步依赖-->
+            <dependency>
+                <groupId>org.mybatis.spring.boot</groupId>
+                <artifactId>mybatis-spring-boot-starter</artifactId>
+                <version>${mybatis.spring.version}</version>
+            </dependency>
+
+            <!--Lombok-->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
+
+            <!--JSON处理工具包-->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${fastjson.version}</version>
+            </dependency>
+
+            <!--commons工具类-->
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>${commons.lang.version}</version>
+            </dependency>
+
+            <!--德鲁伊连接池-->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid-spring-boot-starter</artifactId>
+                <version>${druid.version}</version>
+            </dependency>
+
+            <!--PageHelper分页插件-->
+            <dependency>
+                <groupId>com.github.pagehelper</groupId>
+                <artifactId>pagehelper-spring-boot-starter</artifactId>
+                <version>${pagehelper.version}</version>
+            </dependency>
+
+            <!--knife4j在线接口文档-->
+            <dependency>
+                <groupId>com.github.xiaoymin</groupId>
+                <artifactId>knife4j-spring-boot-starter</artifactId>
+                <version>${knife4j.version}</version>
+            </dependency>
+
+            <!--JWT令牌-->
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt</artifactId>
+                <version>${jjwt.version}</version>
+            </dependency>
+
+            <!--阿里云OSS依赖-->
+            <dependency>
+                <groupId>com.aliyun.oss</groupId>
+                <artifactId>aliyun-sdk-oss</artifactId>
+                <version>${aliyun.sdk.oss.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${jaxb-api.version}</version>
+            </dependency>
+
+            <!-- POI -->
+            <dependency>
+                <groupId>org.apache.poi</groupId>
+                <artifactId>poi-ooxml</artifactId>
+                <version>${poi.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+
+            <!--微信支付-->
+            <dependency>
+                <groupId>com.github.wechatpay-apiv3</groupId>
+                <artifactId>wechatpay-apache-httpclient</artifactId>
+                <version>${wechat.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>

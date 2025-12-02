@@ -12,11 +12,12 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher #设置SpringMVC的路径匹配方式与Swagger的路径匹配方式一致.
-#  redis:
-#    host: ${sky.redis.host}
-#    port: ${sky.redis.port}
-#    database: ${sky.redis.database}
-#    password: ${sky.redis.password}
+#  配置redis数据库的信息
+  redis:
+    host: ${sky.redis.host}
+    port: ${sky.redis.port}
+    database: ${sky.redis.database}
+    password: ${sky.redis.password}
 
 
 #Mybatis的配置信息

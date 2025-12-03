@@ -44,7 +44,11 @@ public class AdminLoginTokenInterceptor implements HandlerInterceptor{
         try {
             Claims claims = JwtUtil.parseJWT(jwtProperties.getAdminSecretKey(), jwt);
             log.info("解析完令牌，{}",claims);
-            Long empId = (Long) claims.get(JwtClaimsConstant.EMP_ID.toString());
+            Object empIdObj = claims.get(JwtClaimsConstant.EMP_ID);
+            Long empId = null;
+            if (empIdObj instanceof Number){
+                empId = ((Number) empIdObj).longValue();
+            }
             //存入当前登录员工id
             BaseContext.setCurrentId(empId);
         } catch (Exception e) {

@@ -4,6 +4,8 @@ import com.sky.constant.MessageConstant;
 import com.sky.exception.BaseException;
 import com.sky.result.Result;
 import lombok.extern.slf4j.Slf4j;
+import net.bytebuddy.implementation.bytecode.Duplication;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -25,6 +27,18 @@ public class GlobalExceptionHandler {
         log.error("异常信息：{}", ex.getMessage());
         return Result.error(ex.getMessage());
     }
+
+//    /**
+//     * 捕获DuplicateKeyException，该异常会在数据库字段（唯一）重复时抛出
+//     * @param ex
+//     * @return
+//     */
+//    @ExceptionHandler
+//    public Result baseExceptionHandler(DuplicateKeyException ex){
+//        ex.printStackTrace();
+//        log.error("异常信息：{}", ex.getMessage());
+//        return Result.error(ex.getMessage());
+//    }
 
     /**
      * 捕获其他异常

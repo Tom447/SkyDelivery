@@ -4,6 +4,7 @@ package com.sky.controller.admin;
 
 
 import com.sky.constant.JwtClaimsConstant;
+import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.entity.Employee;
 import com.sky.properties.JwtProperties;
@@ -13,6 +14,8 @@ import com.sky.utils.JwtUtil;
 import com.sky.vo.EmployeeLoginVO;
 
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +32,7 @@ import java.util.Map;
  * 员工管理Controller
  */
 @Slf4j
+@Api(tags = "员工管理的接口")
 @RestController
 @RequestMapping("/admin/employee")
 public class EmployeeController {
@@ -47,6 +51,7 @@ public class EmployeeController {
      *
      * Entity:与数据库表对应
      */
+    @ApiOperation(value = "员工登录")
     @PostMapping("/login")
     public Result<EmployeeLoginVO> login(@RequestBody  EmployeeLoginDTO employeeLoginDTO){
         log.info("员工登录：{}",employeeLoginDTO);
@@ -66,5 +71,19 @@ public class EmployeeController {
                 .token(jwt).build();
         return Result.success(employeeLoginVO);
     }
+
+
+    /**
+     * 新增员工
+     */
+    @PostMapping
+    public Result save(@RequestBody EmployeeDTO employeeDTO){
+        log.info("新增员工");
+        employeeService.save(employeeDTO);
+        return Result.success();
+    }
+
+
+
 
 }

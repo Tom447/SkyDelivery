@@ -2,14 +2,19 @@ package com.sky.interceptor;
 
 
 import com.aliyuncs.utils.StringUtils;
+import com.sky.constant.JwtClaimsConstant;
+import com.sky.context.BaseContext;
 import com.sky.properties.JwtProperties;
 import com.sky.utils.JwtUtil;
+import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpStatus;
 import org.apache.poi.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,14 +42,26 @@ public class AdminLoginTokenInterceptor implements HandlerInterceptor{
         }
         //3. 校验令牌，如果令牌校验失败， 则不放行 - 401
         try {
-            JwtUtil.parseJWT(jwtProperties.getAdminSecretKey(), jwt);
+            Claims claims = JwtUtil.parseJWT(jwtProperties.getAdminSecretKey(), jwt);
+            log.info("解析完令牌，{}",claims);
+            Long empId = (Long) claims.get(JwtClaimsConstant.EMP_ID.toString());
+            //存入当前登录员工id
+            BaseContext.setCurrentId(empId);
         } catch (Exception e) {
             e.printStackTrace();
             log.info("令牌非法，响应401");
             response.setStatus(HttpStatus.SC_UNAUTHORIZED);
             return false;
         }
-        //4.放行
+        // 4.放行
         return true;
     }
+
+    @Override
+     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler,
+                            @Nullable ModelAndView modelAndView) throws Exception {
+        BaseContext.removeCurrentId();
+
+    }
+
 }

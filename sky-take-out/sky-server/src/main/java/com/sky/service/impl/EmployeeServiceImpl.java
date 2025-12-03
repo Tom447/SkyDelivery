@@ -1,16 +1,20 @@
 package com.sky.service.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.constant.PasswordConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.context.BaseContext;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
+import com.sky.dto.EmployeePageQueryDTO;
 import com.sky.entity.Employee;
 import com.sky.exception.BaseException;
 import com.sky.exception.BusinessException;
 import com.sky.exception.DataException;
 import com.sky.mapper.EmployeeMapper;
+import com.sky.result.PageResult;
 import com.sky.service.EmployeeService;
 import com.sky.utils.BeanHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -22,8 +26,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -106,6 +112,19 @@ public class EmployeeServiceImpl implements EmployeeService {
         //2.调用mapper，保存数据
         employeeMapper.save(employee);
 
+    }
+
+    @Override
+    public PageResult page(EmployeePageQueryDTO pageQueryDTO) {
+        //1.设置分页参数
+        PageHelper.startPage(pageQueryDTO.getPage(), pageQueryDTO.getPageSize());
+
+        //2.执行查询
+        List<Employee> employeeList = employeeMapper.list(pageQueryDTO.getName());
+        Page<Employee> page = (Page<Employee>) employeeList;
+
+        return new PageResult(page.getTotal(), page.getResult());
+        //3.解析并封装结果
     }
 
     private void validateAccountLock(String username) {

@@ -99,5 +99,16 @@ public class EmployeeController {
     }
 
 
+    /**
+     * 启用/禁用员工
+     */
+    @ApiOperation("启用/禁用员工")
+    @PutMapping("/status/{status}/{id}")
+    public Result enableOrDisable(@PathVariable Integer status,@PathVariable Long id){
+        log.info("启用/禁用员工,{},{}",status, id);
+        employeeService.enableOrDisable(status, id);
+        return Result.success();
+    }
+
 
 }

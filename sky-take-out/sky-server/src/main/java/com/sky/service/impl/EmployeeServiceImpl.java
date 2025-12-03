@@ -127,6 +127,16 @@ public class EmployeeServiceImpl implements EmployeeService {
         //3.解析并封装结果
     }
 
+    @Override
+    public void enableOrDisable(Integer status, Long id) {
+        Employee employee = Employee.builder().id(id)
+                .status(status)
+                .updateTime(LocalDateTime.now())
+                .updateUser(BaseContext.getCurrentId())
+                .build();
+        employeeMapper.update(employee);
+    }
+
     private void validateAccountLock(String username) {
         Object flag = redisTemplate.opsForValue().get(LOGIN_LOCK_ERROR_KEY + ":"+ username);
         if (ObjectUtils.isNotEmpty(flag)){//账号被锁定

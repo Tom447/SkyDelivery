@@ -30,4 +30,6 @@ public interface EmployeeMapper {
      * @return
      */
      List<Employee> list(String name);
+
+     void update(Employee employee);
 }

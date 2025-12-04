@@ -9,6 +9,7 @@ import com.sky.context.BaseContext;
 import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
+import com.sky.dto.PasswordEditDTO;
 import com.sky.entity.Employee;
 import com.sky.exception.BusinessException;
 import com.sky.exception.DataException;
@@ -144,6 +145,16 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = BeanHelper.copyProperties(employeeDTO, Employee.class);
         employee.setUpdateUser(BaseContext.getCurrentId());
         employee.setUpdateTime(LocalDateTime.now());
+        employeeMapper.update(employee);
+    }
+
+    @Override
+    public void updatePassword(PasswordEditDTO editPasswordDTO) {
+        Employee employee = Employee.builder().id(editPasswordDTO.getEmpId())
+                .password(editPasswordDTO.getNewPassword())
+                .updateUser(BaseContext.getCurrentId())
+                .updateTime(LocalDateTime.now())
+                .build();
         employeeMapper.update(employee);
     }
 

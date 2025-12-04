@@ -13,6 +13,7 @@ public interface EmployeeMapper {
 
     /**
      * 根据用户名查询员工信息
+     *
      * @param username
      * @return
      */
@@ -26,10 +27,24 @@ public interface EmployeeMapper {
 
     /**
      * 动态条件查询
+     *
      * @param name
      * @return
      */
-     List<Employee> list(String name);
+    List<Employee> list(String name);
 
-     void update(Employee employee);
+
+    /**
+     * 更新员工信息
+     * @param employee
+     */
+    void update(Employee employee);
+
+    /**
+     * 根据id查询员工并返回
+     * @param id
+     * @return
+     */
+    @Select("select id, name, username, password, phone, sex, id_number, status, create_time, update_time, create_user, update_user from employee where id = #{id}")
+    Employee getById(Long id);
 }

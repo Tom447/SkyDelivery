@@ -137,6 +137,11 @@ public class EmployeeServiceImpl implements EmployeeService {
         employeeMapper.update(employee);
     }
 
+    @Override
+    public Employee getById(Long id) {
+        return employeeMapper.getById(id);
+    }
+
     private void validateAccountLock(String username) {
         Object flag = redisTemplate.opsForValue().get(LOGIN_LOCK_ERROR_KEY + ":"+ username);
         if (ObjectUtils.isNotEmpty(flag)){//账号被锁定

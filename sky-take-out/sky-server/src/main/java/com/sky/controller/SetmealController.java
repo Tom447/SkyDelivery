@@ -16,7 +16,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 套餐管理controller
@@ -47,9 +49,11 @@ public class SetmealController {
     }
 
     @ApiOperation("批量删除")
-    @DeleteMapping("{ids}")
-    public Result delete(@PathVariable List<Long> ids){
-        setmealService.delete(ids);
+    @DeleteMapping()
+    public Result delete(@RequestParam String ids){
+        List<Long> list = Arrays.stream(ids.split(","))
+                .map(String::trim).map(Long::parseLong).collect(Collectors.toList());
+        setmealService.delete(list);
         return Result.success();
     }
 

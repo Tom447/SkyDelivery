@@ -63,7 +63,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BusinessException.class)
     public Result businessExceptionHandler(BusinessException ex){
         log.error("业务异常：{}",ex.getMessage());
-        return Result.success(ex.getMessage());
+        return Result.error(ex.getMessage());
     }
 
 }

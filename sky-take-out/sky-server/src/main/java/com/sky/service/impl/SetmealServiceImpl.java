@@ -19,7 +19,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -80,6 +83,12 @@ public class SetmealServiceImpl implements SetmealService {
     public void delete(List<Long> ids) {
         //得到status != 0的集合list
         List<Long> list = setmealMapper.listDeletableIds(ids);
+        Set<Long> deleteIds = new HashSet<>(list);
+        List<Long> disableIds = ids.stream().filter(id -> !deleteIds.contains(id)).collect(Collectors.toList());
+
+        if (!disableIds.isEmpty()){
+            throw new BusinessException("启售套餐不可被删除");
+        }
         //删除setmeal中的list标记的元素
         setmealMapper.delete(list);
         //删除setmeal相关联的表setmeal_dish的list中的元素

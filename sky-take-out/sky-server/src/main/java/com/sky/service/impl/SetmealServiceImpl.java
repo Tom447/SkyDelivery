@@ -7,6 +7,7 @@ import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
 import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
+import com.sky.exception.BusinessException;
 import com.sky.mapper.SetmealDishMapper;
 import com.sky.mapper.SetmealMapper;
 import com.sky.result.PageResult;
@@ -46,12 +47,13 @@ public class SetmealServiceImpl implements SetmealService {
         setmeal.setUpdateUser(BaseContext.getCurrentId());
         System.out.println(setmeal);
         //保存套餐的信息
-        Long  setmealId = setmealMapper.save(setmeal);
+        setmealMapper.save(setmeal);
+        //保存套餐关联表信息
         List<SetmealDish> setmealDishes = setmealDTO.getSetmealDishes();
 
         //保存套餐和菜品关系的信息
         setmealDishes.stream().forEach(setmealDish->{
-            setmealDish.setSetmealId(setmealId);
+            setmealDish.setSetmealId(setmeal.getId());
             setmealDishMapper.save(setmealDish);
         });
     }
@@ -61,13 +63,26 @@ public class SetmealServiceImpl implements SetmealService {
     @Override
     public PageResult page(SetmealPageQueryDTO setmealPageQueryDTO) {
         PageHelper.startPage(setmealPageQueryDTO.getPage(), setmealPageQueryDTO.getPageSize());
-        Setmeal setmeal = Setmeal.builder().name(setmealPageQueryDTO.getName())
+        Setmeal condition= Setmeal.builder().name(setmealPageQueryDTO.getName())
                 .categoryId(setmealPageQueryDTO.getCategoryId() != null ? setmealPageQueryDTO.getCategoryId().longValue() : null)
                 .status(setmealPageQueryDTO.getStatus())
                 .build();
 
-        List<Setmeal> list = setmealMapper.pageByCondition(setmeal);
+        List<Setmeal> list = setmealMapper.pageByCondition(condition);
         Page<Setmeal> setmealList = (Page<Setmeal>) list;
+        if (setmealList.getTotal() == 0){
+            throw new BusinessException("未找到相关套餐");
+        }
         return new PageResult(setmealList.getTotal(), setmealList.getResult());
+    }
+
+    @Override
+    public void delete(List<Long> ids) {
+        //得到status != 0的集合list
+        List<Long> list = setmealMapper.listDeletableIds(ids);
+        //删除setmeal中的list标记的元素
+        setmealMapper.delete(list);
+        //删除setmeal相关联的表setmeal_dish的list中的元素
+        setmealDishMapper.delete(list);
     }
 }

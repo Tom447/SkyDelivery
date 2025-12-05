@@ -46,4 +46,11 @@ public class SetmealController {
         return Result.success(pageResult);
     }
 
+    @ApiOperation("批量删除")
+    @DeleteMapping("{ids}")
+    public Result delete(@PathVariable List<Long> ids){
+        setmealService.delete(ids);
+        return Result.success();
+    }
+
 }

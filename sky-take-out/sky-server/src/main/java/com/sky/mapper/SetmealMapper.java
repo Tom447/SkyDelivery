@@ -19,4 +19,8 @@ public interface SetmealMapper {
     Long save(Setmeal setmeal);
 
     List<Setmeal> pageByCondition(Setmeal setmeal);
+
+    List<Long> listDeletableIds(List<Long> ids);
+
+    void delete(List<Long> ids);
 }

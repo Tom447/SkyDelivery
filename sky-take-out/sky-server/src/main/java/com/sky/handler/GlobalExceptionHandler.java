@@ -3,6 +3,7 @@ package com.sky.handler;
 import com.aliyuncs.utils.StringUtils;
 import com.sky.constant.MessageConstant;
 import com.sky.exception.BaseException;
+import com.sky.exception.BusinessException;
 import com.sky.result.Result;
 import lombok.extern.slf4j.Slf4j;
 import net.bytebuddy.implementation.bytecode.Duplication;
@@ -57,6 +58,12 @@ public class GlobalExceptionHandler {
     	ex.printStackTrace();
         log.error("异常信息：{}", ex.getMessage());
         return Result.error(MessageConstant.UNKNOWN_ERROR);
+    }
+
+    @ExceptionHandler(BusinessException.class)
+    public Result businessExceptionHandler(BusinessException ex){
+        log.error("业务异常：{}",ex.getMessage());
+        return Result.success(ex.getMessage());
     }
 
 }

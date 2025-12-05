@@ -2,6 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.sky.mapper.SetmealMapper">
+    <delete id="delete">
+        delete from setmeal where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
 
 
     <select id="pageByCondition" resultType="com.sky.entity.Setmeal">
@@ -28,5 +34,14 @@
             AND category_id = #{categoryId}
         </if>
         order by create_time desc
+    </select>
+    <select id="listDeletableIds" resultType="java.lang.Long">
+        select id
+        from setmeal
+        where status != 1
+        and id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
     </select>
 </mapper>

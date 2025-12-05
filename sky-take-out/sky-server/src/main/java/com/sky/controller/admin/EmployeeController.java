@@ -97,7 +97,6 @@ public class EmployeeController {
     @GetMapping("/page")
     public Result<PageResult> page(EmployeePageQueryDTO pageQueryDTO){
         log.info("条件分页查询，{}", pageQueryDTO);
-        System.out.println(BaseContext.getCurrentId());
         PageResult pageResult = employeeService.page(pageQueryDTO);
         return Result.success(pageResult);
     }

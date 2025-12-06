@@ -5,15 +5,18 @@ import com.github.pagehelper.PageHelper;
 import com.sky.context.BaseContext;
 import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
+import com.sky.entity.Dish;
 import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
 import com.sky.exception.BusinessException;
+import com.sky.mapper.DishMapper;
 import com.sky.mapper.SetmealDishMapper;
 import com.sky.mapper.SetmealMapper;
 import com.sky.result.PageResult;
 import com.sky.service.SetmealService;
 import com.sky.utils.BeanHelper;
 import com.sky.vo.SetmealVO;
+import javassist.expr.NewArray;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,13 +35,15 @@ public class SetmealServiceImpl implements SetmealService {
     private SetmealMapper setmealMapper;
     @Autowired
     private SetmealDishMapper setmealDishMapper;
-
+    @Autowired
+    private DishMapper dishMapper;
 
     /**
      * 保存套餐信息
      * @param setmealDTO
      */
     @Override
+    @Transactional
     public void save(SetmealDTO setmealDTO) {
         Setmeal setmeal = BeanHelper.copyProperties(setmealDTO, Setmeal.class);
         System.out.println(setmeal);
@@ -124,6 +129,48 @@ public class SetmealServiceImpl implements SetmealService {
         setmealDishes.stream().forEach(setmealDish -> {
             setmealDishMapper.save(setmealDish);
         });
+        return;
+    }
+
+    @Override
+    @Transactional
+    public void updateStatus(Long id, Integer status) {
+        // 校验 status 是否合法
+        if (status == null || (status != 0 && status != 1)) {
+            throw new BusinessException("状态值不合法");
+        }
+
+        // 获取该套餐的所有菜品
+        List<SetmealDish> setmealDishes = setmealDishMapper.getDishsBySetmealId(id);
+        if (setmealDishes.isEmpty()) {
+            throw new BusinessException("套餐未关联任何菜品");
+        }
+
+        // 获取所有菜品 ID
+        List<Long> dishIds = setmealDishes.stream()
+                .map(SetmealDish::getDishId)
+                .collect(Collectors.toList());
+
+        // 获取菜品列表
+        List<Dish> dishList = dishMapper.getDishsByIds(dishIds);
+
+        // 判断是否包含停售菜品（状态为 0）
+        boolean hasStoppedDish = dishList.stream()
+                .anyMatch(dish -> dish.getStatus() == 0);
+
+        // 如果要起售（status=0），但包含停售菜品，则禁止
+        if (status == 1 && hasStoppedDish) {
+            throw new BusinessException("套餐包含停售菜品，无法起售");
+        }
+
+        // 更新套餐状态
+        Setmeal setmeal = Setmeal.builder()
+                .id(id)
+                .status(status)
+                .updateTime(LocalDateTime.now())
+                .updateUser(BaseContext.getCurrentId())
+                .build();
+        setmealMapper.update(setmeal);
         return;
     }
 }

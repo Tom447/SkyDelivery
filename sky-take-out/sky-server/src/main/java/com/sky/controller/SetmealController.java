@@ -7,6 +7,7 @@ import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
 import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
+import com.sky.exception.BusinessException;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.SetmealService;
@@ -71,6 +72,14 @@ public class SetmealController {
     public Result update(@RequestBody SetmealDTO setmealDTO){
         log.info("修改套餐:{}",setmealDTO);
         setmealService.update(setmealDTO);
+        return Result.success();
+    }
+
+    @PutMapping("/status/{status}/{id}")
+    @ApiOperation("起售/停售套餐")
+    public Result updateStatus(@PathVariable Integer status, @PathVariable Long id) {
+        log.info("修改套餐状态：id={}, status={}", id, status);
+        setmealService.updateStatus(id, status);
         return Result.success();
     }
 

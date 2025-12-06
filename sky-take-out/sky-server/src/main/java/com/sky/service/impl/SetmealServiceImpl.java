@@ -17,12 +17,10 @@ import com.sky.vo.SetmealVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -81,6 +79,7 @@ public class SetmealServiceImpl implements SetmealService {
     }
 
     @Override
+    @Transactional
     public void delete(List<Long> ids) {
         //得到status != 0的集合list
         List<Long> list = setmealMapper.listDeletableIds(ids);
@@ -93,7 +92,7 @@ public class SetmealServiceImpl implements SetmealService {
         //删除setmeal中的list标记的元素
         setmealMapper.delete(list);
         //删除setmeal相关联的表setmeal_dish的list中的元素
-        setmealDishMapper.delete(list);
+        setmealDishMapper.deleteBySetmealIds(list);
     }
 
     @Override
@@ -106,5 +105,25 @@ public class SetmealServiceImpl implements SetmealService {
         List<SetmealDish> setmealDishList = setmealDishMapper.getDishsBySetmealId(setmeal.getId());
         setmealVO.setSetmealDishes(setmealDishList);
         return setmealVO;
+    }
+
+    @Override
+    @Transactional
+    public void update(SetmealDTO setmealDTO) {
+        Setmeal setmeal = BeanHelper.copyProperties(setmealDTO, Setmeal.class);
+        setmeal.setUpdateTime(LocalDateTime.now());
+        setmeal.setUpdateUser(BaseContext.getCurrentId());
+        setmealMapper.update(setmeal);
+        List<SetmealDish> setmealDishes = setmealDTO.getSetmealDishes();
+        setmealDishes.stream().forEach(setmealDish -> {
+           setmealDish.setSetmealId(setmeal.getId());
+        });
+        //将旧的setmeal对应的dishs删除
+        setmealDishMapper.deleteBySetmealIds(Arrays.asList(setmeal.getId()));
+        //插入新的
+        setmealDishes.stream().forEach(setmealDish -> {
+            setmealDishMapper.save(setmealDish);
+        });
+        return;
     }
 }

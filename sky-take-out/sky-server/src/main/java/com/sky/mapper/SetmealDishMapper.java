@@ -16,7 +16,7 @@ public interface SetmealDishMapper {
     void save(SetmealDish setmealDish);
 
     //批量删除
-    void delete(List<Long> ids);
+    void deleteBySetmealIds(List<Long> ids);
 
 
     @Select("select * from setmeal_dish where setmeal_id=#{setmealId}")

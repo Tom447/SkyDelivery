@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -93,5 +94,17 @@ public class SetmealServiceImpl implements SetmealService {
         setmealMapper.delete(list);
         //删除setmeal相关联的表setmeal_dish的list中的元素
         setmealDishMapper.delete(list);
+    }
+
+    @Override
+    public SetmealVO getSetmealById(Long id) {
+        Setmeal setmeal = setmealMapper.getSetmealById(id);
+        if (Objects.isNull(setmeal)){
+            throw new BusinessException("该套餐不存在");
+        }
+        SetmealVO setmealVO = BeanHelper.copyProperties(setmeal, SetmealVO.class);
+        List<SetmealDish> setmealDishList = setmealDishMapper.getDishsBySetmealId(setmeal.getId());
+        setmealVO.setSetmealDishes(setmealDishList);
+        return setmealVO;
     }
 }

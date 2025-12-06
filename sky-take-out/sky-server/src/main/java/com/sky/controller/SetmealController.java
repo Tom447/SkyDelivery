@@ -6,6 +6,7 @@ import com.sky.dto.EmployeePageQueryDTO;
 import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
 import com.sky.entity.Setmeal;
+import com.sky.entity.SetmealDish;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.SetmealService;
@@ -55,6 +56,14 @@ public class SetmealController {
                 .map(String::trim).map(Long::parseLong).collect(Collectors.toList());
         setmealService.delete(list);
         return Result.success();
+    }
+
+    @ApiOperation("根据id查询套餐")
+    @GetMapping("/{id}")
+    public Result getSetmealById(@PathVariable Long id){
+        log.info("查询id：{}的套餐",id);
+        SetmealVO setmealVO = setmealService.getSetmealById(id);
+        return Result.success(setmealVO);
     }
 
 }

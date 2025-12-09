@@ -12,6 +12,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * 菜品相关Controller
  */
@@ -46,5 +50,13 @@ public class DishController {
         return Result.success(pageResult);
     }
 
+    @ApiOperation("批量删除")
+    @DeleteMapping()
+    public Result delete(@RequestParam String ids){
+        List<Long> list = Arrays.stream(ids.split(","))
+                .map(String::trim).map(Long::parseLong).collect(Collectors.toList());
+        dishService.delete(list);
+        return Result.success();
+    }
 
 }

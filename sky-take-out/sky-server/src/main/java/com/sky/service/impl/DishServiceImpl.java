@@ -9,6 +9,7 @@ import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.entity.DishFlavor;
 import com.sky.entity.Employee;
+import com.sky.exception.BusinessException;
 import com.sky.mapper.DishFlavorMapper;
 import com.sky.mapper.DishMapper;
 import com.sky.result.PageResult;
@@ -21,7 +22,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -64,7 +68,7 @@ public class DishServiceImpl implements DishService {
 
         //2.根据条件进行查询
         Dish condition = Dish.builder().name(dishPageQueryDTO.getName())
-                .categoryId(dishPageQueryDTO.getCategoryId().longValue())
+                .categoryId(dishPageQueryDTO.getCategoryId() != null ? dishPageQueryDTO.getCategoryId().longValue() : null)
                 .status(dishPageQueryDTO.getStatus())
                 .build();
         List<Dish> dishList = dishMapper.pageByCondition(condition);
@@ -72,5 +76,25 @@ public class DishServiceImpl implements DishService {
         Page<Dish> page = (Page<Dish>) dishList;
         //3.解析并封装结果
         return new PageResult(page.getTotal(), page.getResult());
+    }
+
+
+    //批量删除
+    @Override
+    @Transactional
+    public void delete(List<Long> ids) {
+        //得到status != 0的集合list
+        List<Long> list = dishMapper.listDeletableIds(ids);
+        //得到不可以删除的List：disableIds
+        Set<Long> deleteIds = new HashSet<>(list);
+        List<Long> disableIds = ids.stream().filter(id -> !deleteIds.contains(id)).collect(Collectors.toList());
+        //判断不可删除的
+        if (!disableIds.isEmpty()){
+            throw new BusinessException("含有不可删除的菜品");
+        }
+        //删除dish中的list标记的元素
+        dishMapper.delete(list);
+        //删除dish相关联的表dish_flavor的list中的元素
+        dishFlavorMapper.deleteByDishIds(list);
     }
 }

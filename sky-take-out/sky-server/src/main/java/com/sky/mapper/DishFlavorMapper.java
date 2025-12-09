@@ -15,4 +15,6 @@ public interface DishFlavorMapper {
     @Insert("insert into dish_flavor(dish_id, name, value) " +
             "value(#{dishId},#{name},#{value}) ")
     void save(DishFlavor dishFlavor);
+
+    void deleteByDishIds(List<Long> list);
 }

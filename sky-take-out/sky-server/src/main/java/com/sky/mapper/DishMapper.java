@@ -22,4 +22,10 @@ public interface DishMapper {
     Long save(Dish dish);
 
     List<Dish> pageByCondition(Dish condition);
+
+    List<Long> listDeletableIds(List<Long> ids);
+
+
+    void delete(List<Long> list);
+
 }

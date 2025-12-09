@@ -2,6 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.sky.mapper.DishMapper">
+    <delete id="delete">
+        delete from dish where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+
 
     <select id="getDishsByIds" resultType="com.sky.entity.Dish">
         select * from dish where id in
@@ -24,5 +32,15 @@
                 AND status = #{status}
             </if>
         </where>
+        order by create_time desc
+    </select>
+    <select id="listDeletableIds" resultType="java.lang.Long">
+        select id
+        from dish
+        where status != 1
+        and id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
     </select>
 </mapper>

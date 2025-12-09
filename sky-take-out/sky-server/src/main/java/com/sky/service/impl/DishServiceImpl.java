@@ -136,4 +136,27 @@ public class DishServiceImpl implements DishService {
         });
         return;
     }
+
+    @Override
+    @Transactional
+    public void updateStatus(Long id, Integer status) {
+        // 校验 status 是否合法
+        if (status == null || (status != 0 && status != 1)) {
+            throw new BusinessException("状态值不合法");
+        }
+        //判断id对应的dish是否可更新
+        List<Dish> dishList = dishMapper.getDishsByIds(Arrays.asList(id));
+        if (Objects.isNull(dishList)){
+            throw new BusinessException("该菜品不存在");
+        }
+        //菜品存在
+        Dish dish = dishList.get(0);
+        //菜品状态更新
+        dish.setStatus(status);
+        dish.setUpdateUser(BaseContext.getCurrentId());
+        dish.setUpdateTime(LocalDateTime.now());
+        //更新菜品
+        dishMapper.update(dish);
+        return;
+    }
 }

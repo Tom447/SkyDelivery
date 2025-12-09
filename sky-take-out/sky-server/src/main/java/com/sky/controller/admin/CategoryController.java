@@ -1,0 +1,42 @@
+package com.sky.controller.admin;
+
+import com.sky.dto.CategoryDTO;
+import com.sky.dto.CategoryPageQueryDTO;
+import com.sky.dto.DishPageQueryDTO;
+import com.sky.result.PageResult;
+import com.sky.result.Result;
+import com.sky.service.CategoryService;
+import com.sky.utils.AliOssUtil;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.UUID;
+
+/**
+ * 公共controller
+ */
+@Slf4j
+@Api(tags = "分类管理")
+@RestController
+@RequestMapping("/admin/category")
+public class CategoryController {
+
+    @Autowired
+    private CategoryService categoryService;
+
+    @ApiOperation("分页")
+    @GetMapping("/page")
+    public Result page(CategoryPageQueryDTO categoryPageQueryDTO){
+        log.info("条件分页查询:{}",categoryPageQueryDTO);
+        PageResult pageResult = categoryService.page(categoryPageQueryDTO);
+        return Result.success(pageResult);
+    }
+}

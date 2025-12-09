@@ -3,6 +3,7 @@ package com.sky.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.sky.constant.StatusConstant;
 import com.sky.context.BaseContext;
 import com.sky.dto.CategoryDTO;
 import com.sky.dto.CategoryPageQueryDTO;
@@ -80,6 +81,23 @@ public class CategoryServiceImpl implements CategoryService {
         category.setUpdateTime(LocalDateTime.now());
         //更新分类
         categoryMapper.update(category);
+        return;
+    }
+
+    @Override
+    public void save(CategoryDTO categoryDTO) {
+        Category category = Category.builder()
+                .id(categoryDTO.getId())
+                .name(categoryDTO.getName())
+                .sort(categoryDTO.getSort())
+                .type(categoryDTO.getType())
+                .createTime(LocalDateTime.now())
+                .updateTime(LocalDateTime.now())
+                .createUser(BaseContext.getCurrentId())
+                .updateUser(BaseContext.getCurrentId())
+                .status(StatusConstant.ENABLE)
+                .build();
+        categoryMapper.save(category);
         return;
     }
 }

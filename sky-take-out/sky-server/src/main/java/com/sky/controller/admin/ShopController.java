@@ -1,4 +1,4 @@
-package com.sky.controller;
+package com.sky.controller.admin;
 
 import com.sky.result.Result;
 import com.sky.service.ShopService;
@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @Api(tags = "店铺")
-@RestController
+@RestController("adminShopController")
 @RequestMapping("/admin/shop")
 public class ShopController {
 

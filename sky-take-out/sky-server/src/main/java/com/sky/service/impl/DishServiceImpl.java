@@ -3,6 +3,7 @@ package com.sky.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.sky.constant.StatusConstant;
 import com.sky.context.BaseContext;
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
@@ -81,19 +82,25 @@ public class DishServiceImpl implements DishService {
     @Override
     @Transactional
     public void delete(List<Long> ids) {
-        //得到status != 0的集合list
-        List<Long> list = dishMapper.listDeletableIds(ids);
-        //得到不可以删除的List：disableIds
-        Set<Long> deleteIds = new HashSet<>(list);
-        List<Long> disableIds = ids.stream().filter(id -> !deleteIds.contains(id)).collect(Collectors.toList());
-        //判断不可删除的
-        if (!disableIds.isEmpty()){
-            throw new BusinessException("启售的菜品不可删除");
-        }
-        //删除dish中的list标记的元素
-        dishMapper.delete(list);
-        //删除dish相关联的表dish_flavor的list中的元素
-        dishFlavorMapper.deleteByDishIds(list);
+//        //得到status != 0的集合list
+//        List<Long> list = dishMapper.listDeletableIds(ids);
+//        //得到不可以删除的List：disableIds
+//        Set<Long> deleteIds = new HashSet<>(list);
+//        List<Long> disableIds = ids.stream().filter(id -> !deleteIds.contains(id)).collect(Collectors.toList());
+//        //判断不可删除的
+//        if (!disableIds.isEmpty()){
+//            throw new BusinessException("启售的菜品不可删除");
+//        }
+//        //删除dish中的list标记的元素
+//        dishMapper.delete(list);
+//        //删除dish相关联的表dish_flavor的list中的元素
+//        dishFlavorMapper.deleteByDishIds(list);
+        ids.stream().forEach(id ->{
+            updateStatus(id, StatusConstant.DISABLE);
+        });
+        // 注意：dish_flavor 不需要任何操作！
+        // 因为前端查询菜品时会连带查 flavor，
+        // 如果 dish.status=0，整个菜品不返回，flavor 自然不显示
     }
 
     @Override

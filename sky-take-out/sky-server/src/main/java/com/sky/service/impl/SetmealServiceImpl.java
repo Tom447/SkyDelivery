@@ -2,6 +2,7 @@ package com.sky.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.sky.constant.StatusConstant;
 import com.sky.context.BaseContext;
 import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
@@ -86,18 +87,23 @@ public class SetmealServiceImpl implements SetmealService {
     @Override
     @Transactional
     public void delete(List<Long> ids) {
-        //得到status != 0的集合list
-        List<Long> list = setmealMapper.listDeletableIds(ids);
-        Set<Long> deleteIds = new HashSet<>(list);
-        List<Long> disableIds = ids.stream().filter(id -> !deleteIds.contains(id)).collect(Collectors.toList());
-
-        if (!disableIds.isEmpty()){
-            throw new BusinessException("启售套餐不可被删除");
-        }
-        //删除setmeal中的list标记的元素
-        setmealMapper.delete(list);
-        //删除setmeal相关联的表setmeal_dish的list中的元素
-        setmealDishMapper.deleteBySetmealIds(list);
+//        //得到status != 0的集合list
+//        List<Long> list = setmealMapper.listDeletableIds(ids);
+//        Set<Long> deleteIds = new HashSet<>(list);
+//        List<Long> disableIds = ids.stream().filter(id -> !deleteIds.contains(id)).collect(Collectors.toList());
+//
+//        if (!disableIds.isEmpty()){
+//            throw new BusinessException("启售套餐不可被删除");
+//        }
+//        //删除setmeal中的list标记的元素
+//        setmealMapper.delete(list);
+//        //删除setmeal相关联的表setmeal_dish的list中的元素
+//        setmealDishMapper.deleteBySetmealIds(list);
+        ids.stream().forEach(id ->{
+            updateStatus(id, StatusConstant.ENABLE);
+        });
+        // setmeal_dish 不做任何操作！
+        // 前端查套餐时，只查 status=1 的，setmeal_dish 自动关联
     }
 
     @Override

@@ -25,4 +25,5 @@ public interface SetmealService {
     void update(SetmealDTO setmealDTO);
 
     void updateStatus(Long id, Integer status);
+
 }

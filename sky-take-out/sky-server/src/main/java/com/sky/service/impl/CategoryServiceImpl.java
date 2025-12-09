@@ -103,8 +103,17 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void deleteById(Long id) {
-        categoryMapper.deleteById(id);
-        return;
+//        categoryMapper.deleteById(id);
+//        return;
+        // 1. 更新分类状态
+        Category category = Category.builder()
+                .id(id)
+                .status(StatusConstant.DISABLE)
+                .updateTime(LocalDateTime.now())
+                .build();
+        categoryMapper.update(category); // 只更新 status 和 updateTime
+
+        // 2. ❌ 不做任何级联操作！dish/setmeal 保持原状
     }
 
     @Override

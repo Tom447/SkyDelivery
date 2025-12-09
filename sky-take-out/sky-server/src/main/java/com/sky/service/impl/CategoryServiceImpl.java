@@ -100,4 +100,17 @@ public class CategoryServiceImpl implements CategoryService {
         categoryMapper.save(category);
         return;
     }
+
+    @Override
+    public void deleteById(Long id) {
+        categoryMapper.deleteById(id);
+        return;
+    }
+
+    @Override
+    public List<Category> getByType(Integer type) {
+        Category condition = Category.builder().type(type).build();
+        List<Category> categories = categoryMapper.categoriesByCondition(condition);
+        return categories;
+    }
 }

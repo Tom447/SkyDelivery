@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -69,8 +70,26 @@ public class CategoryController {
     @ApiOperation("新增分类")
     @PostMapping
     public Result save(@RequestBody CategoryDTO categoryDTO){
-        log.info("新增菜品数据:{}",categoryDTO);
+        log.info("新增分类数据:{}",categoryDTO);
         categoryService.save(categoryDTO);
         return Result.success();
     }
+
+    @ApiOperation("根据id删除分类")
+    @DeleteMapping("/{id}")
+    public Result deleteById(@PathVariable Long id){
+        log.info("根据id：{}删除分类",id);
+        categoryService.deleteById(id);
+        return Result.success();
+    }
+
+
+    @ApiOperation("根据type类型查询")
+    @GetMapping("/list")
+    public Result getByType(@RequestParam(required = false) Integer type){
+        log.info("根据type：{}查询分类", type);
+        List<Category> categoryList = categoryService.getByType(type);
+        return Result.success(categoryList);
+    }
+
 }

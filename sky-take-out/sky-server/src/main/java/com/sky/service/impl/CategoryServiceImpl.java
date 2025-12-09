@@ -3,6 +3,7 @@ package com.sky.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.sky.context.BaseContext;
 import com.sky.dto.CategoryDTO;
 import com.sky.dto.CategoryPageQueryDTO;
 import com.sky.entity.Category;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Slf4j
@@ -57,6 +59,26 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public void update(CategoryDTO categoryDTO) {
         Category category = BeanHelper.copyProperties(categoryDTO, Category.class);
+        categoryMapper.update(category);
+        return;
+    }
+
+    @Override
+    public void updateStatus(Long id, Integer status) {
+        // 校验 status 是否合法
+        if (status == null || (status != 0 && status != 1)) {
+            throw new BusinessException("状态值不合法");
+        }
+        //判断id对应的category是否可更新
+        Category category = categoryMapper.getCategoryById(id);
+        if (Objects.isNull(category)){
+            throw new BusinessException("该分类不存在");
+        }
+        //分类存在。分类状态更新
+        category.setStatus(status);
+        category.setUpdateUser(BaseContext.getCurrentId());
+        category.setUpdateTime(LocalDateTime.now());
+        //更新分类
         categoryMapper.update(category);
         return;
     }

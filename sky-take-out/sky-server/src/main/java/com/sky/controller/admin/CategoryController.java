@@ -57,4 +57,12 @@ public class CategoryController {
         categoryService.update(categoryDTO);
         return Result.success();
     }
+
+    @PutMapping("/status/{status}/{id}")
+    @ApiOperation("启用、禁用分类数据信息")
+    public Result updateStatus(@PathVariable Integer status, @PathVariable Long id) {
+        log.info("修改菜品状态：id={}, status={}", id, status);
+        categoryService.updateStatus(id, status);
+        return Result.success();
+    }
 }

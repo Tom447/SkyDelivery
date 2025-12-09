@@ -15,4 +15,6 @@ public interface CategoryService {
     Category getCategoryById(Long id);
 
     void update(CategoryDTO categoryDTO);
+
+    void updateStatus(Long id, Integer status);
 }

@@ -88,6 +88,7 @@ public class DishController {
         dishService.updateStatus(id, status);
         return Result.success();
     }
+
     @GetMapping("/list")
     @ApiOperation("根据条件查询菜品")
     public Result getDishsByCondition(@RequestParam(required = false) Long categoryId,

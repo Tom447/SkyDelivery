@@ -6,6 +6,7 @@ import com.github.pagehelper.PageHelper;
 import com.sky.dto.CategoryPageQueryDTO;
 import com.sky.entity.Category;
 import com.sky.entity.Dish;
+import com.sky.exception.BusinessException;
 import com.sky.mapper.CategoryMapper;
 import com.sky.result.PageResult;
 import com.sky.service.CategoryService;
@@ -39,5 +40,15 @@ public class CategoryServiceImpl implements CategoryService {
         Page<Category> page = (Page<Category>) categoriesList;
         //3.解析并封装结果
         return new PageResult(page.getTotal(), page.getResult());
+    }
+
+    @Override
+    public Category getCategoryById(Long id) {
+
+        Category category = categoryMapper.getCategoryById(id);
+        if (Objects.isNull(category)){
+            throw new BusinessException("该分类不存在");
+        }
+        return category;
     }
 }

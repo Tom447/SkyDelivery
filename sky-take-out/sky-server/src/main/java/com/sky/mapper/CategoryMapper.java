@@ -6,6 +6,7 @@ import com.sky.entity.Dish;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -14,5 +15,8 @@ public interface CategoryMapper {
 
 
     List<Category> categoriesByCondition(Category condition);
+
+    @Select("select id, type, name, sort, status, create_time, update_time, create_user, update_user from category where id = #{id}")
+    Category getCategoryById(Long id);
 }
 

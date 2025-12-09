@@ -6,9 +6,8 @@ import com.github.pagehelper.PageHelper;
 import com.sky.context.BaseContext;
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
-import com.sky.entity.Dish;
-import com.sky.entity.DishFlavor;
-import com.sky.entity.Employee;
+import com.sky.dto.SetmealDTO;
+import com.sky.entity.*;
 import com.sky.exception.BusinessException;
 import com.sky.mapper.DishFlavorMapper;
 import com.sky.mapper.DishMapper;
@@ -114,5 +113,27 @@ public class DishServiceImpl implements DishService {
         //将查到的flavors放到DishVO里
         dishVO.setFlavors(flavors);
         return dishVO;
+    }
+
+    @Override
+    @Transactional
+    public void update(DishDTO dishDTO) {
+
+        //通过dishDTO获得dish
+        Dish dish = BeanHelper.copyProperties(dishDTO, Dish.class);
+        dish.setUpdateTime(LocalDateTime.now());
+        dish.setUpdateUser(BaseContext.getCurrentId());
+        //更新dish表
+        dishMapper.update(dish);
+        //通过dishDTO得到dish_flavors
+        List<DishFlavor> flavors = dishDTO.getFlavors();
+        //将dishDTO中的dish_id的旧的flavor删除掉
+        dishFlavorMapper.deleteByDishIds(Arrays.asList(dish.getId()));
+        //插入新的
+        flavors.stream().forEach(dishFlavor -> {
+            dishFlavor.setDishId(dish.getId());
+            dishFlavorMapper.save(dishFlavor);
+        });
+        return;
     }
 }

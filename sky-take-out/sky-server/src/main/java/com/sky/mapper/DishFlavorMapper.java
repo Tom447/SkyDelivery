@@ -17,7 +17,7 @@ public interface DishFlavorMapper {
             "value(#{dishId},#{name},#{value}) ")
     void save(DishFlavor dishFlavor);
 
-    void deleteByDishIds(List<Long> list);
+    void deleteByDishIds(List<Long> ids);
 
 
     @Select("select id, dish_id, name, value from dish_flavor where dish_id=#{dishId}")

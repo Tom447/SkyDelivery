@@ -28,4 +28,6 @@ public interface DishMapper {
 
     void delete(List<Long> list);
 
+    void update(Dish dish);
 }
+

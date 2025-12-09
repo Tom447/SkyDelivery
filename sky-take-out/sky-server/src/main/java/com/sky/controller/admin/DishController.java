@@ -3,6 +3,7 @@ package com.sky.controller.admin;
 
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
+import com.sky.dto.SetmealDTO;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.DishService;
@@ -68,6 +69,14 @@ public class DishController {
         log.info("查询id：{}的套餐",id);
         DishVO dishVO = dishService.getDishById(id);
         return Result.success(dishVO);
+    }
+
+    @ApiOperation("修改菜品")
+    @PutMapping
+    public Result update(@RequestBody DishDTO dishDTO){
+        log.info("修改套餐:{}",dishDTO);
+        dishService.update(dishDTO);
+        return Result.success();
     }
 
 

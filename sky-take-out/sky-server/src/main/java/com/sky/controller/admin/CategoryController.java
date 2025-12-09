@@ -2,6 +2,7 @@ package com.sky.controller.admin;
 
 import com.sky.dto.CategoryDTO;
 import com.sky.dto.CategoryPageQueryDTO;
+import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Category;
 import com.sky.result.PageResult;
@@ -39,12 +40,21 @@ public class CategoryController {
         return Result.success(pageResult);
     }
 
-    //根据id查询菜品
+    //根据id查询分类
     @ApiOperation("根据id查询分类")
     @GetMapping("/{id}")
     public Result getDishById(@PathVariable Long id){
-        log.info("查询id：{}的菜品",id);
+        log.info("查询id：{}的分类",id);
         Category category = categoryService.getCategoryById(id);
         return Result.success(category);
+    }
+
+
+    @ApiOperation("修改分类")
+    @PutMapping
+    public Result update(@RequestBody CategoryDTO categoryDTO){
+        log.info("修改分类:{}",categoryDTO);
+        categoryService.update(categoryDTO);
+        return Result.success();
     }
 }

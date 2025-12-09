@@ -3,6 +3,7 @@ package com.sky.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.sky.dto.CategoryDTO;
 import com.sky.dto.CategoryPageQueryDTO;
 import com.sky.entity.Category;
 import com.sky.entity.Dish;
@@ -10,6 +11,7 @@ import com.sky.exception.BusinessException;
 import com.sky.mapper.CategoryMapper;
 import com.sky.result.PageResult;
 import com.sky.service.CategoryService;
+import com.sky.utils.BeanHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,5 +52,12 @@ public class CategoryServiceImpl implements CategoryService {
             throw new BusinessException("该分类不存在");
         }
         return category;
+    }
+
+    @Override
+    public void update(CategoryDTO categoryDTO) {
+        Category category = BeanHelper.copyProperties(categoryDTO, Category.class);
+        categoryMapper.update(category);
+        return;
     }
 }

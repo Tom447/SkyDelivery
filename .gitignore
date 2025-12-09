@@ -3,3 +3,23 @@ sky-take-out/sky-server/src/main/resources/application-dev.yml
 **/target/
 */target/
 **/target/
+
+
+# Maven
+**/target/
+
+# IDE
+.idea/
+*.iml
+
+# Logs
+*.log
+
+# Config files with secrets (if they contain real keys)
+**/application.yml
+**/application-dev.yml
+**/application-prod.yml
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,72 @@
+# =============== Backend ===============
+backend/target/
+backend/.idea/
+backend/*.iml
+
+# NEVER commit local config
+backend/src/main/resources/application-dev.yml
+
+# NEVER commit test files with secrets
+backend/src/test/java/com/itheima/Demo.java
+
+# =============== Frontend ===============
+frontend/node_modules/
+frontend/dist/
+
+# =============== Shared ===============
+*.log
+.DS_Store
+
+# Ignore IDE and build files
+.idea/
+*.iml
+target/
+**/application-dev.yml
+**/Demo.java
+.DS_Store
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Build
+target/
+
+# Sensitive config (NEVER commit!)
+**/application-dev.yml
+**/application-prod.yml
+**/Demo.java
+
+# Logs & OS
+*.log
+.DS_Store
+Thumbs.db
+
+# Maven / Java
+target/
+*.class
+*.jar
+*.war
+*.iml
+*.iws
+.idea/
+out/
+build/
+
+# Node.js / Vue
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.vscode/
+.DS_Store
+*.swp
+*.swo
+
+# Env files (if not meant to be shared)
+.env.local
+.env.*.local

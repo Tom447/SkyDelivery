@@ -21,12 +21,12 @@ public interface DishMapper {
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     Long save(Dish dish);
 
-    List<Dish> pageByCondition(Dish condition);
+    List<Dish> dishsByCondition(Dish condition);
 
     List<Long> listDeletableIds(List<Long> ids);
 
 
-    void delete(List<Long> list);
+    void delete(List<Long> ids);
 
     void update(Dish dish);
 }

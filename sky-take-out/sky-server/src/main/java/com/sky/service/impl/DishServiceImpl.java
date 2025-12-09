@@ -69,7 +69,7 @@ public class DishServiceImpl implements DishService {
                 .categoryId(dishPageQueryDTO.getCategoryId() != null ? dishPageQueryDTO.getCategoryId().longValue() : null)
                 .status(dishPageQueryDTO.getStatus())
                 .build();
-        List<Dish> dishList = dishMapper.pageByCondition(condition);
+        List<Dish> dishList = dishMapper.dishsByCondition(condition);
 
         Page<Dish> page = (Page<Dish>) dishList;
         //3.解析并封装结果
@@ -88,7 +88,7 @@ public class DishServiceImpl implements DishService {
         List<Long> disableIds = ids.stream().filter(id -> !deleteIds.contains(id)).collect(Collectors.toList());
         //判断不可删除的
         if (!disableIds.isEmpty()){
-            throw new BusinessException("含有不可删除的菜品");
+            throw new BusinessException("启售的菜品不可删除");
         }
         //删除dish中的list标记的元素
         dishMapper.delete(list);
@@ -158,5 +158,15 @@ public class DishServiceImpl implements DishService {
         //更新菜品
         dishMapper.update(dish);
         return;
+    }
+
+    @Override
+    public List<Dish> getDishByCondition(Long categoryId, String name) {
+        Dish condition = Dish.builder().categoryId(categoryId == null ? null : categoryId)
+                .name(name == null ? null : name)
+                .build();
+        List<Dish> dishList = dishMapper.dishsByCondition(condition);
+        return dishList;
+
     }
 }

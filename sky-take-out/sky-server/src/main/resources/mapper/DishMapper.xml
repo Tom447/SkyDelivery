@@ -51,7 +51,7 @@
     </select>
 
 
-    <select id="pageByCondition" resultType="com.sky.entity.Dish">
+    <select id="dishsByCondition" resultType="com.sky.entity.Dish">
         select * from dish
         <where>
             <if test="name != null and name != ''">
@@ -66,6 +66,7 @@
         </where>
         order by create_time desc
     </select>
+
     <select id="listDeletableIds" resultType="java.lang.Long">
         select id
         from dish

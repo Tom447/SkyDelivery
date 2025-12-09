@@ -4,6 +4,7 @@ package com.sky.controller.admin;
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.dto.SetmealDTO;
+import com.sky.entity.Dish;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.DishService;
@@ -83,9 +84,18 @@ public class DishController {
     @PutMapping("/status/{status}/{id}")
     @ApiOperation("起售/停售菜品")
     public Result updateStatus(@PathVariable Integer status, @PathVariable Long id) {
-        log.info("修改套餐状态：id={}, status={}", id, status);
+        log.info("修改菜品状态：id={}, status={}", id, status);
         dishService.updateStatus(id, status);
         return Result.success();
     }
+    @GetMapping("/list")
+    @ApiOperation("根据条件查询菜品")
+    public Result getDishsByCondition(@RequestParam(required = false) Long categoryId,
+                                      @RequestParam(required = false) String name)
+    {
+        log.info("条件查询获取菜品,条件：categoryId:{}, name:{}",categoryId,name);
+        List<Dish> dishList = dishService.getDishByCondition(categoryId, name);
+        return Result.success(dishList);
 
+    }
 }

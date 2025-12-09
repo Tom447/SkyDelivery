@@ -1,10 +1,14 @@
 package com.sky.service.impl;
 
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.sky.context.BaseContext;
 import com.sky.dto.DishDTO;
+import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.entity.DishFlavor;
+import com.sky.entity.Employee;
 import com.sky.mapper.DishFlavorMapper;
 import com.sky.mapper.DishMapper;
 import com.sky.result.PageResult;
@@ -50,5 +54,23 @@ public class DishServiceImpl implements DishService {
             dishFlavorMapper.save(dishFlavor);
         });
         return;
+    }
+
+    //分页查询
+    @Override
+    public PageResult page(DishPageQueryDTO dishPageQueryDTO) {
+        //1.设置分页参数
+        PageHelper.startPage(dishPageQueryDTO.getPage(), dishPageQueryDTO.getPageSize());
+
+        //2.根据条件进行查询
+        Dish condition = Dish.builder().name(dishPageQueryDTO.getName())
+                .categoryId(dishPageQueryDTO.getCategoryId().longValue())
+                .status(dishPageQueryDTO.getStatus())
+                .build();
+        List<Dish> dishList = dishMapper.pageByCondition(condition);
+
+        Page<Dish> page = (Page<Dish>) dishList;
+        //3.解析并封装结果
+        return new PageResult(page.getTotal(), page.getResult());
     }
 }

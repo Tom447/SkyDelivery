@@ -9,4 +9,20 @@
             #{id}
         </foreach>
     </select>
+
+
+    <select id="pageByCondition" resultType="com.sky.entity.Dish">
+        select * from dish
+        <where>
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+            <if test="categoryId != null">
+                AND category_id = #{categoryId}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
 </mapper>

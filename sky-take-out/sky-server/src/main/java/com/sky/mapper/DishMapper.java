@@ -20,4 +20,6 @@ public interface DishMapper {
             "values (#{name},#{categoryId},#{price},#{image},#{description},#{status},#{createTime},#{updateTime},#{createUser},#{updateUser})")
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     Long save(Dish dish);
+
+    List<Dish> pageByCondition(Dish condition);
 }

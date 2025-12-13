@@ -26,4 +26,5 @@ public interface SetmealService {
 
     void updateStatus(Long id, Integer status);
 
+    List<Setmeal> getSetmealByCategoryId(Long categoryId);
 }

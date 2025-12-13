@@ -5,6 +5,7 @@ import com.sky.context.BaseContext;
 import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
 import com.sky.entity.Dish;
+import com.sky.entity.Setmeal;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.SetmealService;
@@ -31,14 +32,12 @@ public class SetmealController {
     @Autowired
     private SetmealService setmealService;
 
-//    @GetMapping("/list")
-//    @ApiOperation("根据条件查询菜品")
-//    public Result getDishsByCondition(@RequestParam(required = true) Long categoryId)
-//    {
-//        log.info("条件查询获取菜品,条件：categoryId:{}",categoryId);
-//
-//        return Result.success(dishList);
-//
-//    }
+
+    @GetMapping("/list")
+    public Result getSetmealByCategoryId(@RequestParam(required = true) Long categoryId){
+        log.info("套餐查询，通过categoryid：{}查询套餐", categoryId);
+        List<Setmeal> res = setmealService.getSetmealByCategoryId(categoryId);
+        return Result.success(res);
+    }
 
 }

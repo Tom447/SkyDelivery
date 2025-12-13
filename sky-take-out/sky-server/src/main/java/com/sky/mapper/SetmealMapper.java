@@ -28,4 +28,7 @@ public interface SetmealMapper {
     Setmeal getSetmealById(Long id);
 
     void update(Setmeal setmeal);
+
+    @Select("select id, name, category_id, price, status, description, image, create_time, update_time, create_user, update_user from setmeal where category_id = #{categoryId}")
+    List<Setmeal> getSetmealByCategoryId(Long categoryId);
 }

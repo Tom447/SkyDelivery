@@ -179,4 +179,10 @@ public class SetmealServiceImpl implements SetmealService {
         setmealMapper.update(setmeal);
         return;
     }
+
+    @Override
+    public List<Setmeal> getSetmealByCategoryId(Long categoryId) {
+        List<Setmeal> setmealByCategoryId = setmealMapper.getSetmealByCategoryId(categoryId);
+        return setmealByCategoryId;
+    }
 }

@@ -176,4 +176,13 @@ public class DishServiceImpl implements DishService {
         return dishList;
 
     }
+
+    @Override
+    public List<Dish> getDishByCondition(Long categoryId) {
+        Dish condition = Dish.builder().categoryId(categoryId == null ? null : categoryId)
+                .build();
+        List<Dish> dishList = dishMapper.dishsByCondition(condition);
+        return dishList;
+
+    }
 }

@@ -11,9 +11,6 @@ import java.util.List;
 
 public interface DishService {
 
-
-
-
     void save(DishDTO dishDTO);
 
     PageResult page(DishPageQueryDTO dishPageQueryDTO);
@@ -27,4 +24,6 @@ public interface DishService {
     void updateStatus(Long id, Integer status);
 
     List<Dish> getDishByCondition(Long categoryId, String name);
+
+    List<Dish> getDishByCondition(Long categoryId);
 }

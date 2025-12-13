@@ -41,11 +41,20 @@ sky:
     admin-secret-key: itcast #设置jwt签名加密时使用的秘钥
     admin-ttl: 604800000 #设置jwt过期时间
     admin-token-name: token #设置前端传递过来的令牌名称
-  alioss:
+    user-secret-key: itheima #设置C端jwt签名加密时使用的秘钥
+    user-ttl: 604800000 #设置C端jwt的过期时间
+    user-token-name: authorization
+
+  alioss: #阿里云oss存储文件
     endpoint: ${OSS_ENDPOINT:oss-cn-beijing.aliyuncs.com}
     accessKeyId: ${OSS_ACCESS_KEY_ID:}
     accessKeySecret: ${OSS_ACCESS_KEY_SECRET:}
     bucketName: ${OSS_BUCKET_NAME:mawangde01-20250929-204402}
+
+  wechat: #微信小程序的appid
+    appid: ${sky.wechat.appid}
+    secret: ${sky.wechat.secret}
+
 
 #端口号
 server:

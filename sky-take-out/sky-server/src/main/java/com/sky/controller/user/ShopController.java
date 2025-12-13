@@ -1,6 +1,7 @@
 package com.sky.controller.user;
 
 
+import com.sky.constant.StatusConstant;
 import com.sky.result.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -30,4 +31,6 @@ public class ShopController {
         log.info("redis中查询店铺的营业状态.营业状态为:{}", status == 1 ? "营业中":"打样中");
         return Result.success(status);
     }
+
+
 }

@@ -43,7 +43,7 @@ sky:
     admin-token-name: token #设置前端传递过来的令牌名称
     user-secret-key: itheima #设置C端jwt签名加密时使用的秘钥
     user-ttl: 604800000 #设置C端jwt的过期时间
-    user-token-name: authorization
+    user-token-name: authentication
 
   alioss: #阿里云oss存储文件
     endpoint: ${OSS_ENDPOINT:oss-cn-beijing.aliyuncs.com}

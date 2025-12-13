@@ -41,7 +41,7 @@ public class UserLoginTokenInterceptor implements HandlerInterceptor{
         }
         //3. 校验令牌，如果令牌校验失败， 则不放行 - 401
         try {
-            Claims claims = JwtUtil.parseJWT(jwtProperties.getUserTokenName(), jwt);
+            Claims claims = JwtUtil.parseJWT(jwtProperties.getUserSecretKey(), jwt);
             log.info("解析完令牌，{}",claims);
             Object userIdObj = claims.get(JwtClaimsConstant.USER_ID);
             Long userId = null;

@@ -177,12 +177,11 @@ public class DishServiceImpl implements DishService {
 
     }
 
-    @Override
-    public List<Dish> getDishByCondition(Long categoryId) {
-        Dish condition = Dish.builder().categoryId(categoryId == null ? null : categoryId)
-                .build();
-        List<Dish> dishList = dishMapper.dishsByCondition(condition);
-        return dishList;
+
+    public List<DishVO> getDishByCategoryId(Long categoryId){
+        List<DishVO> dishAndflavorsBycategoryId = dishMapper.getDishAndflavorsBycategoryId(categoryId);
+        return dishAndflavorsBycategoryId;
 
     }
+
 }

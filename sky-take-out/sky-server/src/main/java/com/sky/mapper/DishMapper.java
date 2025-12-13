@@ -1,8 +1,10 @@
 package com.sky.mapper;
 
 
+import com.sky.dto.DishDTO;
 import com.sky.entity.Dish;
 import com.sky.entity.Setmeal;
+import com.sky.vo.DishVO;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
@@ -29,5 +31,7 @@ public interface DishMapper {
     void delete(List<Long> ids);
 
     void update(Dish dish);
+
+    List<DishVO> getDishAndflavorsBycategoryId(Long categoryId);
 }
 

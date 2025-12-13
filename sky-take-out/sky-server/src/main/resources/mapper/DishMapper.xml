@@ -76,4 +76,48 @@
             #{id}
         </foreach>
     </select>
+
+    <resultMap id="DishWithFlavorsMap" type="com.sky.vo.DishVO">
+        <id property="id" column="dish_id"/>
+        <result property="name" column="dish_name"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="price" column="price"/>
+        <result property="image" column="image"/>
+        <result property="description" column="description"/>
+        <result property="status" column="status"/>
+        <result property="updateTime" column="update_time"/>
+
+        <!-- 映射 flavors 列表 -->
+        <collection property="flavors" ofType="com.sky.entity.DishFlavor">
+            <id property="id" column="flavor_id"/>
+            <result property="name" column="flavor_name"/>
+            <result property="value" column="flavor_value"/>
+        </collection>
+    </resultMap>
+
+    <select id="getDishAndflavorsBycategoryId" resultMap="DishWithFlavorsMap">
+        SELECT
+        d.id          AS dish_id,
+        d.name        AS dish_name,
+        d.category_id AS category_id,
+        d.price       AS price,
+        d.image       AS image,
+        d.description AS description,
+        d.status      AS status,
+        d.update_time AS update_time,
+        c.name        AS category_name,
+        df.id         AS flavor_id,
+        df.name       AS flavor_name,
+        df.value      AS flavor_value
+        FROM dish d
+        LEFT JOIN dish_flavor df ON d.id = df.dish_id
+        LEFT JOIN category c ON d.category_id = c.id
+        WHERE d.status = 1
+        <if test="categoryId != null">
+            AND d.category_id = #{categoryId}
+        </if>
+        ORDER BY c.sort ASC, d.create_time DESC
+    </select>
+
 </mapper>

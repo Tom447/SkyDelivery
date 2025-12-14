@@ -36,7 +36,7 @@
         FROM setmeal_dish sd
         <where>
             dish_id In
-            <foreach collection="ids" item="id" separator="," open="(" close="{">
+            <foreach collection="ids" item="id" separator="," open="(" close=")">
                 #{id}
             </foreach>
         </where>

@@ -68,7 +68,8 @@ public class DishServiceImpl implements DishService {
         });
 
         //3.删除redis缓存中的菜品数据
-        //TODO...
+        cleanCache(dishDTO.getCategoryId().toString());
+
         return;
     }
 
@@ -115,7 +116,7 @@ public class DishServiceImpl implements DishService {
 //        });
 
         //删除redis缓存中的菜单数据
-        //TODO...
+        cleanCache("*");
     }
 
     @Override
@@ -158,8 +159,9 @@ public class DishServiceImpl implements DishService {
         });
 
 
+
         //删除redis缓存中的菜单数据
-        //TODO...
+        cleanCache("*");
         return;
     }
 
@@ -183,8 +185,14 @@ public class DishServiceImpl implements DishService {
             }
         }
         //删除redis缓存中的菜单数据
-        //TODO...
+        cleanCache("*");
         return;
+    }
+
+    private void cleanCache(String suffix) {
+        log.info("清理缓存中指定的key{}","dish:cache:"+suffix);
+        Set<Object> keys = redisTemplate.keys("dish:cache:" + suffix);
+        redisTemplate.delete(keys);
     }
 
     @Override
@@ -199,7 +207,7 @@ public class DishServiceImpl implements DishService {
 
 
     public List<DishVO> listDishsWithFlavors(Long categoryId) {
-        String redisDishKey = "dish:cache" + categoryId;
+        String redisDishKey = "dish:cache:" + categoryId;
         //1.先查询redis缓存，如果缓存中有数据，直接返回
         List<DishVO> dishVOList = (List<DishVO>) redisTemplate.opsForValue().get(redisDishKey);
         //2.如果缓存中没有数据，再查询数据库

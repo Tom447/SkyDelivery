@@ -96,7 +96,7 @@
         </collection>
     </resultMap>
 
-    <select id="getDishAndflavorsBycategoryId" resultMap="DishWithFlavorsMap">
+    <select id="listDishsWithFlavors" resultMap="DishWithFlavorsMap">
         SELECT
         d.id          AS dish_id,
         d.name        AS dish_name,
@@ -113,11 +113,18 @@
         FROM dish d
         LEFT JOIN dish_flavor df ON d.id = df.dish_id
         LEFT JOIN category c ON d.category_id = c.id
-        WHERE d.status = 1
-        <if test="categoryId != null">
-            AND d.category_id = #{categoryId}
-        </if>
+        <where>
+            <if test="status != null">
+                AND d.status = #{status}
+            </if>
+            <if test="categoryId != null">
+                AND d.category_id = #{categoryId}
+            </if>
+        </where>
+
+
         ORDER BY c.sort ASC, d.create_time DESC
     </select>
+
 
 </mapper>

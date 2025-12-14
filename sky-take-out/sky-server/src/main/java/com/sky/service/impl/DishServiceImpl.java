@@ -178,8 +178,11 @@ public class DishServiceImpl implements DishService {
     }
 
 
-    public List<DishVO> getDishByCategoryId(Long categoryId){
-        List<DishVO> dishAndflavorsBycategoryId = dishMapper.getDishAndflavorsBycategoryId(categoryId);
+    public List<DishVO> listDishsWithFlavors(Long categoryId){
+        Dish condition = Dish.builder().categoryId(categoryId)
+                .status(StatusConstant.ENABLE)
+                .build();
+        List<DishVO> dishAndflavorsBycategoryId = dishMapper.listDishsWithFlavors(condition);
         return dishAndflavorsBycategoryId;
 
     }

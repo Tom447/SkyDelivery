@@ -32,6 +32,6 @@ public interface DishMapper {
 
     void update(Dish dish);
 
-    List<DishVO> getDishAndflavorsBycategoryId(Long categoryId);
+    List<DishVO> listDishsWithFlavors(Dish dish);
 }
 

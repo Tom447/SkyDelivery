@@ -31,10 +31,10 @@ public class DishController {
 
     @GetMapping("/list")
     @ApiOperation("根据条件查询菜品")
-    public Result getDishsByCategoryId(@RequestParam(required = true) Long categoryId)
+    public Result listDishsWithFlavors(@RequestParam(required = true) Long categoryId)
     {
         log.info("条件查询获取菜品,条件：categoryId:{}",categoryId);
-        List<DishVO> dishByCategoryId = dishService.getDishByCategoryId(categoryId);
+        List<DishVO> dishByCategoryId = dishService.listDishsWithFlavors(categoryId);
         return Result.success(dishByCategoryId);
     }
 }

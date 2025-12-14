@@ -25,5 +25,5 @@ public interface DishService {
 
     List<Dish> getDishByCondition(Long categoryId, String name);
 
-    List<DishVO> getDishByCategoryId(Long categoryId);
+    List<DishVO> listDishsWithFlavors(Long categoryId);
 }

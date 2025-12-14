@@ -182,8 +182,10 @@ public class SetmealServiceImpl implements SetmealService {
 
     @Override
     public List<Setmeal> getSetmealByCategoryId(Long categoryId) {
-        List<Setmeal> setmealByCategoryId = setmealMapper.getSetmealByCategoryId(categoryId);
-        return setmealByCategoryId;
+
+        Setmeal condition = Setmeal.builder().categoryId(categoryId).status(StatusConstant.ENABLE).build();
+        List<Setmeal> list = setmealMapper.pageByCondition(condition);
+        return list;
     }
 
     @Override

@@ -9,6 +9,27 @@
         </foreach>
     </delete>
 
+    <resultMap id="DishWithSetmealDishMap" type="com.sky.vo.SetmealDishVO">
+        <result property="copies" column="copies"/>
+        <result property="image" column="image"/>
+        <result property="description" column="description"/>
+        <result property="name" column="name"/>
+    </resultMap>
+
+    <select id="getDishBySetmealId" resultMap="DishWithSetmealDishMap">
+        SELECT
+        sd.copies     AS copies,
+        d.image       AS image,
+        d.description AS description,
+        d.name        AS name
+        FROM setmeal_dish sd
+        LEFT JOIN dish d ON sd.dish_id = d.id
+        WHERE d.status = 1
+        <if test="setmealId != null">
+            AND sd.setmeal_id = #{setmealId}
+        </if>
+        ORDER BY d.create_time DESC
+    </select>
 
 
 </mapper>

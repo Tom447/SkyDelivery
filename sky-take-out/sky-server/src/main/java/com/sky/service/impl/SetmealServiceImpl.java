@@ -16,8 +16,8 @@ import com.sky.mapper.SetmealMapper;
 import com.sky.result.PageResult;
 import com.sky.service.SetmealService;
 import com.sky.utils.BeanHelper;
+import com.sky.vo.SetmealDishVO;
 import com.sky.vo.SetmealVO;
-import javassist.expr.NewArray;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -184,5 +184,11 @@ public class SetmealServiceImpl implements SetmealService {
     public List<Setmeal> getSetmealByCategoryId(Long categoryId) {
         List<Setmeal> setmealByCategoryId = setmealMapper.getSetmealByCategoryId(categoryId);
         return setmealByCategoryId;
+    }
+
+    @Override
+    public List<SetmealDishVO> getDishBySetmealId(Long setmealId) {
+        List<SetmealDishVO> dishBySetmealId = setmealDishMapper.getDishBySetmealId(setmealId);
+        return dishBySetmealId;
     }
 }

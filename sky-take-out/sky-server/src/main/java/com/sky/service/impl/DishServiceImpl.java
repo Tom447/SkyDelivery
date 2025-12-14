@@ -12,6 +12,8 @@ import com.sky.entity.*;
 import com.sky.exception.BusinessException;
 import com.sky.mapper.DishFlavorMapper;
 import com.sky.mapper.DishMapper;
+import com.sky.mapper.SetmealDishMapper;
+import com.sky.mapper.SetmealMapper;
 import com.sky.result.PageResult;
 import com.sky.service.DishService;
 import com.sky.service.EmployeeService;
@@ -19,8 +21,10 @@ import com.sky.utils.BeanHelper;
 import com.sky.vo.DishVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -34,6 +38,12 @@ public class DishServiceImpl implements DishService {
     private DishMapper dishMapper;
     @Autowired
     private DishFlavorMapper dishFlavorMapper;
+    @Autowired
+    private RedisTemplate<Object, Object> redisTemplate;
+    @Autowired
+    private SetmealDishMapper setmealDishMapper;
+    @Autowired
+    private SetmealMapper setmealMapper;
 
     @Override
     @Transactional
@@ -56,6 +66,9 @@ public class DishServiceImpl implements DishService {
             //插入
             dishFlavorMapper.save(dishFlavor);
         });
+
+        //3.删除redis缓存中的菜品数据
+        //TODO...
         return;
     }
 
@@ -82,25 +95,27 @@ public class DishServiceImpl implements DishService {
     @Override
     @Transactional
     public void delete(List<Long> ids) {
-//        //得到status != 0的集合list
-//        List<Long> list = dishMapper.listDeletableIds(ids);
-//        //得到不可以删除的List：disableIds
-//        Set<Long> deleteIds = new HashSet<>(list);
-//        List<Long> disableIds = ids.stream().filter(id -> !deleteIds.contains(id)).collect(Collectors.toList());
-//        //判断不可删除的
-//        if (!disableIds.isEmpty()){
-//            throw new BusinessException("启售的菜品不可删除");
-//        }
-//        //删除dish中的list标记的元素
-//        dishMapper.delete(list);
-//        //删除dish相关联的表dish_flavor的list中的元素
-//        dishFlavorMapper.deleteByDishIds(list);
-        ids.stream().forEach(id ->{
-            updateStatus(id, StatusConstant.DISABLE);
-        });
-        // 注意：dish_flavor 不需要任何操作！
-        // 因为前端查询菜品时会连带查 flavor，
-        // 如果 dish.status=0，整个菜品不返回，flavor 自然不显示
+        //得到status != 0的集合list
+        List<Long> list = dishMapper.listDeletableIds(ids);
+        //得到不可以删除的List：disableIds
+        Set<Long> deleteIds = new HashSet<>(list);
+        List<Long> disableIds = ids.stream().filter(id -> !deleteIds.contains(id)).collect(Collectors.toList());
+        //判断不可删除的
+        if (!disableIds.isEmpty()){
+            throw new BusinessException("启售的菜品不可删除");
+        }
+        //删除dish中的list标记的元素
+        dishMapper.delete(list);
+        //删除dish相关联的表dish_flavor的list中的元素
+        dishFlavorMapper.deleteByDishIds(list);
+
+        //软删除
+//        ids.stream().forEach(id -> {
+//            updateStatus(id, StatusConstant.DISABLE);
+//        });
+
+        //删除redis缓存中的菜单数据
+        //TODO...
     }
 
     @Override
@@ -109,7 +124,7 @@ public class DishServiceImpl implements DishService {
         //通过id获取对应的dish
         List<Dish> dishList = dishMapper.getDishsByIds(Arrays.asList(id));
         //如果该id不存在就抛异常
-        if (Objects.isNull(dishList)){
+        if (Objects.isNull(dishList)) {
             throw new BusinessException("该菜品不存在");
         }
         //id存在得到查到的dish
@@ -141,29 +156,34 @@ public class DishServiceImpl implements DishService {
             dishFlavor.setDishId(dish.getId());
             dishFlavorMapper.save(dishFlavor);
         });
+
+
+        //删除redis缓存中的菜单数据
+        //TODO...
         return;
     }
 
     @Override
     @Transactional
     public void updateStatus(Long id, Integer status) {
-        // 校验 status 是否合法
-        if (status == null || (status != 0 && status != 1)) {
-            throw new BusinessException("状态值不合法");
-        }
-        //判断id对应的dish是否可更新
-        List<Dish> dishList = dishMapper.getDishsByIds(Arrays.asList(id));
-        if (Objects.isNull(dishList)){
-            throw new BusinessException("该菜品不存在");
-        }
-        //菜品存在
-        Dish dish = dishList.get(0);
-        //菜品状态更新
-        dish.setStatus(status);
-        dish.setUpdateUser(BaseContext.getCurrentId());
-        dish.setUpdateTime(LocalDateTime.now());
-        //更新菜品
+        //1.更新菜品
+        Dish dish = Dish.builder().id(id)
+                .status(status)
+                .build();
         dishMapper.update(dish);
+
+        //2.如果是停售操作，还需要将该菜品关联的套餐也停售了
+        if (status == StatusConstant.DISABLE){
+            List<Long> setmealIds = setmealDishMapper.getSetmealIdsByDishId(Collections.singletonList(id));
+            if (!CollectionUtils.isEmpty(setmealIds)){
+                setmealIds.stream().forEach(setmealId ->{
+                    Setmeal setmeal = Setmeal.builder().id(setmealId).status(StatusConstant.DISABLE).build();
+                    setmealMapper.update(setmeal);
+                });
+            }
+        }
+        //删除redis缓存中的菜单数据
+        //TODO...
         return;
     }
 
@@ -178,13 +198,25 @@ public class DishServiceImpl implements DishService {
     }
 
 
-    public List<DishVO> listDishsWithFlavors(Long categoryId){
+    public List<DishVO> listDishsWithFlavors(Long categoryId) {
+        String redisDishKey = "dish:cache" + categoryId;
+        //1.先查询redis缓存，如果缓存中有数据，直接返回
+        List<DishVO> dishVOList = (List<DishVO>) redisTemplate.opsForValue().get(redisDishKey);
+        //2.如果缓存中没有数据，再查询数据库
+        if (!CollectionUtils.isEmpty(dishVOList)) {
+            log.info("查询redis缓存，命中数据直接返回.....");
+            return dishVOList;
+        }
         Dish condition = Dish.builder().categoryId(categoryId)
                 .status(StatusConstant.ENABLE)
                 .build();
-        List<DishVO> dishAndflavorsBycategoryId = dishMapper.listDishsWithFlavors(condition);
-        return dishAndflavorsBycategoryId;
+        dishVOList = dishMapper.listDishsWithFlavors(condition);
 
+
+        //3.把数据库查询的结果，加入缓存
+        redisTemplate.opsForValue().set(redisDishKey, dishVOList);
+        log.info("查询数据库数据，将查询到的数据缓存到redis数据库中");
+        return dishVOList;
     }
 
 }

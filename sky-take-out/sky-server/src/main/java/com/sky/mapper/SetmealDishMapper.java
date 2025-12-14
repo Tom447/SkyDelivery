@@ -24,4 +24,6 @@ public interface SetmealDishMapper {
     List<SetmealDish> getDishsBySetmealId(Long setmealId);
 
     List<SetmealDishVO> getDishBySetmealId(Long setmealId);
+
+    List<Long> getSetmealIdsByDishId(List<Long> ids);
 }

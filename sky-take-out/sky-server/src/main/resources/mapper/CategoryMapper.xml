@@ -84,11 +84,15 @@
             <if test="type != null">
                 AND type = #{type}
             </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
         </where>
         order by create_time desc
     </select>
 
-<!--    <select id="listDeletableIds" resultType="java.lang.Long">-->
+
+    <!--    <select id="listDeletableIds" resultType="java.lang.Long">-->
 <!--        select id-->
 <!--        from dish-->
 <!--        where status != 1-->

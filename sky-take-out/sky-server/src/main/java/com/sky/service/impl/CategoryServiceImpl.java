@@ -122,4 +122,11 @@ public class CategoryServiceImpl implements CategoryService {
         List<Category> categories = categoryMapper.categoriesByCondition(condition);
         return categories;
     }
+
+    @Override
+    public List<Category> listByType(Integer type) {
+        Category condition = Category.builder().type(type).status(StatusConstant.ENABLE).build();
+        List<Category> categories = categoryMapper.categoriesByCondition(condition);
+        return categories;
+    }
 }

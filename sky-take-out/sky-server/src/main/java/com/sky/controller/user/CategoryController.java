@@ -27,10 +27,8 @@ public class CategoryController {
     @GetMapping("/list")
     public Result getByType(@RequestParam(required = false) Integer type){
         log.info("C端根据type：{}查询分类", type);
-        List<Category> categoryList = categoryService.getByType(type);
+        List<Category> categoryList = categoryService.listByType(type);
         return Result.success(categoryList);
     }
-
-
 
 }

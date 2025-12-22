@@ -29,7 +29,7 @@ public interface SetmealService {
 
     void updateStatus(Long id, Integer status);
 
-    List<Setmeal> getSetmealByCategoryId(Long categoryId);
+    List<Setmeal> list(Setmeal setmeal);
 
     List<SetmealDishVO> getDishBySetmealId(Long setmealId);
 }

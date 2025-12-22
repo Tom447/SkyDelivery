@@ -20,6 +20,8 @@ import com.sky.vo.SetmealDishVO;
 import com.sky.vo.SetmealVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,6 +45,7 @@ public class SetmealServiceImpl implements SetmealService {
      * 保存套餐信息
      * @param setmealDTO
      */
+    @CacheEvict(cacheNames = "setmeal:cache", key = "#a0.categoryId")
     @Override
     @Transactional
     public void save(SetmealDTO setmealDTO) {
@@ -84,24 +87,28 @@ public class SetmealServiceImpl implements SetmealService {
         return new PageResult(setmealList.getTotal(), setmealList.getResult());
     }
 
+
+    @CacheEvict(cacheNames = "setmeal:cache", allEntries = true)
     @Override
     @Transactional
     public void delete(List<Long> ids) {
-//        //得到status != 0的集合list
-//        List<Long> list = setmealMapper.listDeletableIds(ids);
-//        Set<Long> deleteIds = new HashSet<>(list);
-//        List<Long> disableIds = ids.stream().filter(id -> !deleteIds.contains(id)).collect(Collectors.toList());
-//
-//        if (!disableIds.isEmpty()){
-//            throw new BusinessException("启售套餐不可被删除");
-//        }
-//        //删除setmeal中的list标记的元素
-//        setmealMapper.delete(list);
-//        //删除setmeal相关联的表setmeal_dish的list中的元素
-//        setmealDishMapper.deleteBySetmealIds(list);
-        ids.stream().forEach(id ->{
-            updateStatus(id, StatusConstant.ENABLE);
-        });
+        //得到status != 0的集合list
+        List<Long> list = setmealMapper.listDeletableIds(ids);
+        Set<Long> deleteIds = new HashSet<>(list);
+        List<Long> disableIds = ids.stream().filter(id -> !deleteIds.contains(id)).collect(Collectors.toList());
+
+        if (!disableIds.isEmpty()){
+            throw new BusinessException("启售套餐不可被删除");
+        }
+        //删除setmeal中的list标记的元素
+        setmealMapper.delete(list);
+        //删除setmeal相关联的表setmeal_dish的list中的元素
+        setmealDishMapper.deleteBySetmealIds(list);
+
+        //软删除
+//        ids.stream().forEach(id ->{
+//            updateStatus(id, StatusConstant.ENABLE);
+//        });
         // setmeal_dish 不做任何操作！
         // 前端查套餐时，只查 status=1 的，setmeal_dish 自动关联
     }
@@ -118,13 +125,18 @@ public class SetmealServiceImpl implements SetmealService {
         return setmealVO;
     }
 
+    @CacheEvict(cacheNames = "setmeal:cache", allEntries = true)
     @Override
     @Transactional
     public void update(SetmealDTO setmealDTO) {
+
+        //修改套餐的基本信息
         Setmeal setmeal = BeanHelper.copyProperties(setmealDTO, Setmeal.class);
         setmeal.setUpdateTime(LocalDateTime.now());
         setmeal.setUpdateUser(BaseContext.getCurrentId());
+        //更新套餐
         setmealMapper.update(setmeal);
+        //得到旧的套餐对应的setmeal_dish关联部分
         List<SetmealDish> setmealDishes = setmealDTO.getSetmealDishes();
         setmealDishes.stream().forEach(setmealDish -> {
            setmealDish.setSetmealId(setmeal.getId());
@@ -137,7 +149,7 @@ public class SetmealServiceImpl implements SetmealService {
         });
         return;
     }
-
+    @CacheEvict(cacheNames = "setmeal:cache", allEntries = true)
     @Override
     @Transactional
     public void updateStatus(Long id, Integer status) {
@@ -180,10 +192,9 @@ public class SetmealServiceImpl implements SetmealService {
         return;
     }
 
+    @Cacheable(cacheNames = "setmeal:cache", key = "#a0.categoryId")
     @Override
-    public List<Setmeal> getSetmealByCategoryId(Long categoryId) {
-
-        Setmeal condition = Setmeal.builder().categoryId(categoryId).status(StatusConstant.ENABLE).build();
+    public List<Setmeal> list(Setmeal condition) {
         List<Setmeal> list = setmealMapper.pageByCondition(condition);
         return list;
     }

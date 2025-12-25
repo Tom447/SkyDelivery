@@ -19,6 +19,8 @@ import org.springframework.util.CollectionUtils;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 @Service
@@ -77,5 +79,36 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     public List<ShoppingCart> list() {
         ShoppingCart condition = ShoppingCart.builder().userId(BaseContext.getCurrentId()).build();
        return shoppingCartMapper.list(condition);
+    }
+
+    @Override
+    public void clean() {
+        //根据userid找到需要删除的购物车中record的id
+        ShoppingCart condition = ShoppingCart.builder().userId(BaseContext.getCurrentId()).build();
+        List<ShoppingCart> listed = shoppingCartMapper.list(condition);
+        //获得需要删除的ids
+        List<Long> deleteIds = listed.stream().map(ShoppingCart::getId).collect(Collectors.toList());
+        shoppingCartMapper.delete(deleteIds);
+    }
+
+    @Override
+    public void delete(ShoppingCartDTO shoppingCartDTO) {
+        //1.把需要删除的数据list查出来
+        ShoppingCart condition = BeanHelper.copyProperties(shoppingCartDTO, ShoppingCart.class);
+        condition.setUserId(BaseContext.getCurrentId());
+        List<ShoppingCart> list = shoppingCartMapper.list(condition);
+
+        //2.根据list其数量，如果>1，那么就-1，如果=1，直接删除
+        ShoppingCart shoppingCart = list.get(0);
+        if (shoppingCart.getNumber() > 1){
+            shoppingCartMapper.updateNumberById(
+                    ShoppingCart.builder()
+                            .id(shoppingCart.getId())
+                            .number(shoppingCart.getNumber()-1)
+                            .build()
+            );
+        }else{
+            shoppingCartMapper.delete(Arrays.asList(shoppingCart.getId()));
+        }
     }
 }

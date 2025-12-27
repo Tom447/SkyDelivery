@@ -55,12 +55,29 @@ public class AddressController {
     }
 
 
-    @ApiOperation("得到默认的收货地址")
+    @ApiOperation("查询默认的收货地址")
     @GetMapping("/default")
     public Result<AddressBook> getdefaultAddress(){
         log.info("得到1默认收获地址");
         AddressBook addressBook = addressService.getdefaultAddress();
         return Result.success(addressBook);
     }
+
+    @ApiOperation("根据ID查询收货地址信息")
+    @GetMapping("/{id}")
+    public Result<AddressBook> getAddressById(@PathVariable Long id){
+        log.info("根据ID:{}查询收货地址信息", id);
+        AddressBook addressBook = addressService.getInfoById(id);
+        return Result.success(addressBook);
+    }
+
+    @ApiOperation("根据id修改地址")
+    @PutMapping()
+    public Result updateById(@RequestBody AddressBook addressBook){
+        log.info("根据id：{}修改地址信息", addressBook.getId());
+        addressService.update(addressBook);
+        return Result.success();
+    }
+
 
 }

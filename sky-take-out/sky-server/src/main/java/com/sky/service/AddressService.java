@@ -15,4 +15,9 @@ public interface AddressService {
     void setDefaultAddress(Long id);
 
     AddressBook getdefaultAddress();
+
+    AddressBook getInfoById(Long id);
+
+    void update(AddressBook addressBook);
 }
+

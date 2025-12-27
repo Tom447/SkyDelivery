@@ -76,4 +76,16 @@ public class AddressServiceImpl implements AddressService {
             throw new BusinessException("没有默认收货地址");
         }
     }
+
+    @Override
+    public AddressBook getInfoById(Long id) {
+        return addressMapper.getAddressById(id);
+    }
+
+    @Override
+    public void update(AddressBook addressBook) {
+        addressMapper.update(addressBook);
+    }
+
+
 }

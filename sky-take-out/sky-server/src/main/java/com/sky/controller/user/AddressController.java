@@ -58,7 +58,7 @@ public class AddressController {
     @ApiOperation("查询默认的收货地址")
     @GetMapping("/default")
     public Result<AddressBook> getdefaultAddress(){
-        log.info("得到1默认收获地址");
+        log.info("得到默认收获地址");
         AddressBook addressBook = addressService.getdefaultAddress();
         return Result.success(addressBook);
     }
@@ -76,6 +76,14 @@ public class AddressController {
     public Result updateById(@RequestBody AddressBook addressBook){
         log.info("根据id：{}修改地址信息", addressBook.getId());
         addressService.update(addressBook);
+        return Result.success();
+    }
+
+    @ApiOperation("根据id删除地址")
+    @DeleteMapping("/")
+    public Result deleteById(@RequestParam Long id){
+        log.info("根据id删除地址");
+        addressService.deleteById(id);
         return Result.success();
     }
 

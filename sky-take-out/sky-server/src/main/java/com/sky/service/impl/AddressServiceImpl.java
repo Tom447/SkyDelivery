@@ -87,5 +87,10 @@ public class AddressServiceImpl implements AddressService {
         addressMapper.update(addressBook);
     }
 
+    @Override
+    public void deleteById(Long id) {
+        addressMapper.deleteById(id);
+    }
+
 
 }

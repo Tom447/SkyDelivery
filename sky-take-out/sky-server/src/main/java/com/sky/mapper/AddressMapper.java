@@ -2,6 +2,7 @@ package com.sky.mapper;
 
 
 import com.sky.entity.AddressBook;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -29,5 +30,9 @@ public interface AddressMapper {
     AddressBook getAddressById(Long id);
 
     void update(AddressBook addressBook);
+
+
+    @Delete("delete from address_book where id = #{id}")
+    void deleteById(Long id);
 }
 

@@ -46,4 +46,21 @@ public class AddressController {
         return Result.success(addressBookList);
     }
 
+    @ApiOperation("设置默认的收货地址")
+    @PutMapping("/default")
+    public Result setDefaultAddress(@RequestBody AddressBook addressBook){
+        log.info("设置id：{}为什么默认地址",addressBook.getId());
+        addressService.setDefaultAddress(addressBook.getId());
+        return Result.success();
+    }
+
+
+    @ApiOperation("得到默认的收货地址")
+    @GetMapping("/default")
+    public Result<AddressBook> getdefaultAddress(){
+        log.info("得到1默认收获地址");
+        AddressBook addressBook = addressService.getdefaultAddress();
+        return Result.success(addressBook);
+    }
+
 }

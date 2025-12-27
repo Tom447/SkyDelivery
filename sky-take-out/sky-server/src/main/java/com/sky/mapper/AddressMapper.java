@@ -24,5 +24,10 @@ public interface AddressMapper {
 
     @Select("select * from address_book")
     List<AddressBook> list();
+
+    @Select("select * from address_book where id = #{id}")
+    AddressBook getAddressById(Long id);
+
+    void update(AddressBook addressBook);
 }
 

@@ -18,6 +18,13 @@ spring:
     port: ${sky.redis.port}
     database: ${sky.redis.database}
     password: ${sky.redis.password}
+  #  配置电子邮件信息
+  mail:
+    host: smtp.qq.com
+    port: 465
+    password: szlwjdtvhockhhii
+    username: 1142322503@qq.com
+    protocol: smtps
 
 
 #Mybatis的配置信息

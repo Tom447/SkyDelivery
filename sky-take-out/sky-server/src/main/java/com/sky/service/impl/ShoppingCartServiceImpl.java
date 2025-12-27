@@ -6,6 +6,7 @@ import com.sky.dto.ShoppingCartDTO;
 import com.sky.entity.Dish;
 import com.sky.entity.Setmeal;
 import com.sky.entity.ShoppingCart;
+import com.sky.exception.BusinessException;
 import com.sky.mapper.DishMapper;
 import com.sky.mapper.SetmealMapper;
 import com.sky.mapper.ShoppingCartMapper;
@@ -97,7 +98,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         ShoppingCart condition = BeanHelper.copyProperties(shoppingCartDTO, ShoppingCart.class);
         condition.setUserId(BaseContext.getCurrentId());
         List<ShoppingCart> list = shoppingCartMapper.list(condition);
-
+        if (CollectionUtils.isEmpty(list)){
+            throw new BusinessException("C端购物车数据异常");
+        }
         //2.根据list其数量，如果>1，那么就-1，如果=1，直接删除
         ShoppingCart shoppingCart = list.get(0);
         if (shoppingCart.getNumber() > 1){

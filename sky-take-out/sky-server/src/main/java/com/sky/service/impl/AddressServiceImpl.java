@@ -50,20 +50,26 @@ public class AddressServiceImpl implements AddressService {
     @Override
     @Transactional
     public void setDefaultAddress(Long id) {
-        AddressBook addressById = addressMapper.getAddressById(id);
-        if (Objects.isNull(addressById)){
+        //根据id查找到地址簿addressbook
+        AddressBook addressBook = addressMapper.getAddressById(id);
+        if (Objects.isNull(addressBook)){
             //该id的地址不存在
             throw new BusinessException("没有id为{ + "+ id+ "+ }的地址");
         }else{
             //该id的地址存在
             //1.先查找到当前的默认的地址
             AddressBook defaultAddressBook = addressMapper.getDefaultAddressBook();
-            //2.将当前的默认的地址设置为非默认地址
-            defaultAddressBook.setIsDefault(StatusConstant.DISABLE);
-            addressMapper.update(defaultAddressBook);
-            //3.将id的地址簿设置为默认地址
-            addressById.setIsDefault(StatusConstant.ENABLE);
-            addressMapper.update(addressById);
+            if (!Objects.isNull(defaultAddressBook)){//有默认地址
+                //2.将当前的默认的地址设置为非默认地址
+                defaultAddressBook.setIsDefault(StatusConstant.DISABLE);
+                addressMapper.update(defaultAddressBook);
+                //3.将id的地址簿设置为默认地址
+                addressBook.setIsDefault(StatusConstant.ENABLE);
+                addressMapper.update(addressBook);
+            }else {//无默认地址
+                addressBook.setIsDefault(StatusConstant.ENABLE);
+                addressMapper.update(addressBook);
+            }
         }
     }
 
@@ -95,7 +101,7 @@ public class AddressServiceImpl implements AddressService {
             //2.如果id的address是默认地址，就提示默认地址不可删除，如果不是就删掉
             if(addressById.getIsDefault() == StatusConstant.ENABLE){
                 //是默认地址
-                throw new BusinessException("默认地址不可删除")
+                throw new BusinessException("默认地址不可删除");
             }else{
                 //不是默认地址
                 addressMapper.deleteById(id);

@@ -27,6 +27,7 @@ spring:
     protocol: smtps
 
 
+
 #Mybatis的配置信息
 mybatis:
   mapper-locations: classpath:mapper/*.xml  #mapper配置文件
@@ -61,7 +62,16 @@ sky:
   wechat: #微信小程序的appid
     appid: ${sky.wechat.appid}
     secret: ${sky.wechat.secret}
-
+    #以下是支付相关配置信息
+    mchid: ${sky.wechat.mchid}
+    mchSerialNo: ${sky.wechat.mchSerialNo}
+    privateKeyFilePath: ${sky.wechat.privateKeyFilePath}
+    apiV3Key: ${sky.wechat.apiV3Key}
+    weChatPayCertFilePath: ${sky.wechat.weChatPayCertFilePath}
+    notifyUrl: ${sky.wechat.notifyUrl}
+    refundNotifyUrl: ${sky.wechat.refundNotifyUrl}
+    # 新增：是否启用沙箱
+    sandbox: true
 
 #端口号
 server:

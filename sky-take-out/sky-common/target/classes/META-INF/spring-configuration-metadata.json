@@ -107,6 +107,11 @@
       "sourceType": "com.sky.properties.WeChatProperties"
     },
     {
+      "name": "sky.wechat.sandbox",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.sky.properties.WeChatProperties"
+    },
+    {
       "name": "sky.wechat.secret",
       "type": "java.lang.String",
       "sourceType": "com.sky.properties.WeChatProperties"

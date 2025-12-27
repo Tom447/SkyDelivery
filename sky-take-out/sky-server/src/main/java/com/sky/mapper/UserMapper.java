@@ -25,4 +25,7 @@ public interface UserMapper {
             "values (#{openid},#{name},#{phone},#{sex},#{idNumber},#{avatar},#{createTime})")
     @Options(useGeneratedKeys = true, keyColumn = "id", keyProperty = "id")
     void insert(User user);
+
+    @Select("select ID, OPENID, NAME, PHONE, SEX, ID_NUMBER, AVATAR, CREATE_TIME from user where id = #{userId}")
+    User getById(Long userId);
 }

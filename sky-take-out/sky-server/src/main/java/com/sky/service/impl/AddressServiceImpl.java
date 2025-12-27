@@ -89,7 +89,21 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public void deleteById(Long id) {
-        addressMapper.deleteById(id);
+        //1.判断id的address是否是默认地址
+        AddressBook addressById = addressMapper.getAddressById(id);
+        if (!Objects.isNull(addressById)){ //查到了
+            //2.如果id的address是默认地址，就提示默认地址不可删除，如果不是就删掉
+            if(addressById.getIsDefault() == StatusConstant.ENABLE){
+                //是默认地址
+                throw new BusinessException("默认地址不可删除")
+            }else{
+                //不是默认地址
+                addressMapper.deleteById(id);
+            }
+        }else{
+            //没查到
+            throw new BusinessException("要删除的地址不存在");
+        }
     }
 
 

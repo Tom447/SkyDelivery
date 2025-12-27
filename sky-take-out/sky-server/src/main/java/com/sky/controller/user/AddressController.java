@@ -38,4 +38,12 @@ public class AddressController {
         return Result.success();
     }
 
+    @ApiOperation("查询当前用户的地址列表")
+    @GetMapping("/list")
+    public Result<List<AddressBook>> list(){
+        log.info("查询当前用户的地址列表");
+        List<AddressBook> addressBookList = addressService.list();
+        return Result.success(addressBookList);
+    }
+
 }

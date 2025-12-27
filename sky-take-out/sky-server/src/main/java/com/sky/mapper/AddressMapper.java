@@ -5,8 +5,12 @@ import com.sky.entity.AddressBook;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 @Mapper
 public interface AddressMapper {
+
+
 
     /**
      * 保存地址簿
@@ -17,5 +21,8 @@ public interface AddressMapper {
 
     @Select("select * from address_book where is_default = 1")
     AddressBook getDefaultAddressBook();
+
+    @Select("select * from address_book")
+    List<AddressBook> list();
 }
 

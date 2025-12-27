@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Slf4j
@@ -39,5 +40,10 @@ public class AddressServiceImpl implements AddressService {
             addressBook.setIsDefault(StatusConstant.ENABLE);
         }
         addressMapper.save(addressBook);
+    }
+
+    @Override
+    public List<AddressBook> list() {
+        return addressMapper.list();
     }
 }

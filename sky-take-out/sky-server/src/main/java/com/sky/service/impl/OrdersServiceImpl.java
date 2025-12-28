@@ -395,4 +395,24 @@ public class OrdersServiceImpl implements OrdersService {
             ordersMapper.update(orders);
         }
     }
+
+    @Override
+    public void complete(Long id) {
+        /**
+         * - 判断订单是否存在 以及 订单的状态是否正确 （只有订单状态为 **派送中** 的订单， 才可以进行完成订单）
+         * //        - 更新订单的状态为 **已完成**
+         */
+        Orders orderCondition = Orders.builder().id(id).build();
+        List<Orders> list = ordersMapper.list(orderCondition);
+        //判断订单是否存在
+        if (list.isEmpty()) {
+            throw new BusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        Orders orders = list.get(0);
+        if (orders.getStatus() == Orders.ORDER_STAUTS_DELIVERY_IN_PROGRESS){//只有订单状态为 **派送中** 的订单， 才可以进行完成订单
+//            更新订单的状态为 **已完成**
+            orders.setStatus(Orders.ORDER_STAUTS_COMPLETED);
+            ordersMapper.update(orders);
+        }
+    }
 }

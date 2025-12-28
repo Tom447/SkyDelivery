@@ -70,5 +70,14 @@ public class OrdersController {
         return Result.success();
     }
 
+    @ApiOperation("取消订单")
+    @PutMapping("/cancel")
+    public Result cancel(@RequestBody OrdersCancelDTO ordersCancelDTO){
+        log.info("对{}取消订单",ordersCancelDTO);
+        ordersService.cancel(ordersCancelDTO);
+        return Result.success();
+    }
+
+
 
 }

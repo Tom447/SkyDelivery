@@ -338,4 +338,40 @@ public class OrdersServiceImpl implements OrdersService {
         orders.setRejectionReason(ordersRejectionDTO.getRejectionReason());
         ordersMapper.update(orders);
     }
+
+    @Override
+    public void cancel(OrdersCancelDTO ordersCancelDTO) {
+        /**
+         * - 校验订单是否存在
+         * - 如果订单的支付状态为 **已支付** , 是需要退款的 (调用weChatUtil.refund方法退款)， 且将支付状态改为 **退款**
+         * - 更新订单的状态为 **已取消**
+         */
+        Orders orderCondition = Orders.builder().id(ordersCancelDTO.getId()).build();
+        List<Orders> list = ordersMapper.list(orderCondition);
+        //判断订单是否存在
+        if (list.isEmpty()) {
+            throw new BusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        Orders orders = list.get(0);
+        //如果当前订单的支付状态为已支付，拒单需要退款
+        if (orders.getPayStatus() == Orders.PAY_STATUS_PAID) {
+            try {
+                weChatPayUtil.refund(
+                        orders.getNumber(),
+                        "REFUND_" + System.currentTimeMillis(),
+                        orders.getAmount(),
+                        orders.getAmount()
+                );
+                // 退款成功，更新订单状态
+                orders.setPayStatus(Orders.PAY_STATUS_REFUND);
+            } catch (Exception e) {
+                log.error("退款失败", e);
+                throw new BusinessException("退款失败，请联系客服");
+            }
+        }
+        //更新订单状态为已取消
+        orders.setStatus(Orders.ORDER_STAUTS_CANCELLED);
+        orders.setCancelReason(ordersCancelDTO.getCancelReason());
+        ordersMapper.update(orders);
+    }
 }

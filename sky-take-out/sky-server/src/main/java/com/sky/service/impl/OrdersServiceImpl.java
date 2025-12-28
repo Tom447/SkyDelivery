@@ -186,6 +186,8 @@ public class OrdersServiceImpl implements OrdersService {
         return new PageResult(pageInfo.getTotal(), voList);
     }
 
+
+
     @Override
     public OrdersDetailVO getOrdersDetailById(Long id) {
 
@@ -200,6 +202,19 @@ public class OrdersServiceImpl implements OrdersService {
         OrdersDetailVO ordersDetailVO = BeanHelper.copyProperties(order, OrdersDetailVO.class);
         ordersDetailVO.setOrderDetailList(orderDetailsList);
         return ordersDetailVO;
+    }
+
+    @Override
+    public void cancel(Long id) {
+        Orders orderCondition = Orders.builder().id(id).build();
+        List<Orders> list = ordersMapper.list(orderCondition);
+        if (list.isEmpty()){
+            throw new BusinessException("没有对应订单");
+        }
+        Orders order = list.get(0);
+        order.setStatus(Orders.ORDER_STAUTS_CANCELLED);
+
+        ordersMapper.update(order);
     }
 
 }

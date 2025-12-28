@@ -2,13 +2,27 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.sky.mapper.ShoppingCartMapper">
+<!--    <delete id="delete">-->
+<!--        delete-->
+<!--        from shopping_cart-->
+<!--        where id in-->
+<!--        <foreach collection="ids" item="id" open="(" separator="," close=")">-->
+<!--            #{id}-->
+<!--        </foreach>-->
+<!--        &lt;!&ndash; 防止空集合 &ndash;&gt;-->
+<!--        AND 1 = 1-->
+<!--    </delete>-->
+
     <delete id="delete">
-        delete
-        from shopping_cart
-        where id in
-        <foreach collection="ids" item="id" open="(" separator="," close=")">
-            #{id}
-        </foreach>
+        DELETE FROM shopping_cart
+        <where>
+            <if test="ids != null and !ids.isEmpty()">
+                id IN
+                <foreach collection="ids" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
     </delete>
 
     <select id="list" resultType="com.sky.entity.ShoppingCart">

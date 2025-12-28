@@ -217,4 +217,75 @@ public class OrdersServiceImpl implements OrdersService {
         ordersMapper.update(order);
     }
 
+    @Override
+    @Transactional
+    public void again(Long orderId) {
+        Long userId = BaseContext.getCurrentId();
+
+        // 1. 查询历史订单
+        Orders oldOrder = ordersMapper.getById(orderId);
+        if (oldOrder == null || !oldOrder.getUserId().equals(userId)) {
+            throw new BusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+
+        // 2. 查询该订单的明细
+        List<OrderDetail> orderDetailList = ordersDetailMapper.getByOrderId(orderId);
+        if (CollectionUtils.isEmpty(orderDetailList)) {
+            throw new BusinessException("无订单明细");
+        }
+
+        // 3. 查询收货地址（必须存在）
+        AddressBook addressBook = addressMapper.getAddressById(oldOrder.getAddressBookId());
+        if (addressBook == null) {
+            throw new BusinessException(MessageConstant.ADDRESS_BOOK_IS_NULL);
+        }
+
+        // 4. 构建新订单
+        Orders newOrder = new Orders();
+        // 复用历史订单的可复用字段
+        newOrder.setAddressBookId(oldOrder.getAddressBookId());
+        newOrder.setRemark(oldOrder.getRemark());
+        newOrder.setPayMethod(oldOrder.getPayMethod()); // 或设为默认值
+        newOrder.setTablewareNumber(oldOrder.getTablewareNumber());
+        newOrder.setPackAmount(oldOrder.getPackAmount());
+        newOrder.setAmount(oldOrder.getAmount());
+        newOrder.setTablewareNumber(oldOrder.getTablewareNumber());
+        newOrder.setTablewareStatus(oldOrder.getTablewareStatus());
+
+        // 设置新订单的动态字段
+        newOrder.setNumber(String.valueOf(System.nanoTime())); // 新订单号
+        newOrder.setStatus(Orders.ORDER_STAUTS_PENDING_PAYMENT); // 待支付
+        newOrder.setUserId(userId);
+        newOrder.setOrderTime(LocalDateTime.now());
+        newOrder.setPayStatus(Orders.PAY_STATUS_UN_PAID);
+        newOrder.setDeliveryStatus(0);//默认为再定时间
+
+
+        // 收货信息
+        newOrder.setPhone(addressBook.getPhone());
+        newOrder.setAddress(addressBook.getDetail());
+        newOrder.setConsignee(addressBook.getConsignee());
+
+        // 插入新订单
+        ordersMapper.insert(newOrder);
+
+        // 5. 插入新订单明细（基于历史明细）
+        List<OrderDetail> newOrderDetails = orderDetailList.stream().map(detail -> {
+            OrderDetail newDetail = new OrderDetail();
+            // 拷贝菜品/套餐信息
+            newDetail.setOrderId(newOrder.getId()); // 关联新订单ID
+            newDetail.setName(detail.getName());
+            newDetail.setImage(detail.getImage());
+            newDetail.setDishId(detail.getDishId());
+            newDetail.setSetmealId(detail.getSetmealId());
+            newDetail.setDishFlavor(detail.getDishFlavor());
+            newDetail.setNumber(detail.getNumber());
+            newDetail.setAmount(detail.getAmount());
+            return newDetail;
+        }).collect(Collectors.toList());
+
+        ordersDetailMapper.insertBatch(newOrderDetails);
+
+        // 注意：这里不清空购物车！因为“再来一单”不影响当前购物车
+    }
 }

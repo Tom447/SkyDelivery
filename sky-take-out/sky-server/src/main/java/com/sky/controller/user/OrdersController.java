@@ -6,6 +6,7 @@ import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
 import com.sky.entity.OrderDetail;
+import com.sky.entity.Orders;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.OrdersService;
@@ -80,6 +81,14 @@ public class OrdersController {
     public Result cancel(@PathVariable Long id){
         log.info("取消id：{}订单",id);
         ordersService.cancel(id);
+        return Result.success();
+    }
+
+    @ApiOperation("再来一单")
+    @PostMapping("/repetition/{id}")
+    public Result repetition(@PathVariable Long id){
+        log.info("订单Id:{}再来一单", id);
+        ordersService.again(id);
         return Result.success();
     }
 }

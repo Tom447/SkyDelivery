@@ -31,5 +31,7 @@ public interface OrdersService {
     OrdersDetailVO getOrdersDetailById(Long id);
 
     void cancel(Long id);
+
+    void again(Long id);
 }
 

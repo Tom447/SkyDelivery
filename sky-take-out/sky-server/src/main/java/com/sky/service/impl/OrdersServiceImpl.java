@@ -2,7 +2,6 @@ package com.sky.service.impl;
 
 
 import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.sky.constant.MessageConstant;
@@ -14,17 +13,13 @@ import com.sky.entity.*;
 import com.sky.exception.BusinessException;
 import com.sky.mapper.*;
 import com.sky.result.PageResult;
-import com.sky.service.AddressService;
 import com.sky.service.OrdersService;
-import com.sky.service.ShoppingCartService;
 import com.sky.utils.BeanHelper;
 import com.sky.utils.WeChatPayUtil;
-import com.sky.vo.HistoryOrdersVO;
+import com.sky.vo.OrdersDetailVO;
 import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderSubmitVO;
-import com.sky.vo.OrderVO;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,10 +27,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -183,15 +175,31 @@ public class OrdersServiceImpl implements OrdersService {
                 .collect(Collectors.groupingBy(OrderDetail::getOrderId));
 
         // 7. 构建 VO 列表
-        List<HistoryOrdersVO> voList = ordersList.stream()
+        List<OrdersDetailVO> voList = ordersList.stream()
                 .map(order -> {
-                    HistoryOrdersVO vo = BeanHelper.copyProperties(order, HistoryOrdersVO.class);
+                    OrdersDetailVO vo = BeanHelper.copyProperties(order, OrdersDetailVO.class);
                     vo.setOrderDetailList(detailMap.getOrDefault(order.getId(), Collections.emptyList()));
                     return vo;
                 }).collect(Collectors.toList());
 
         //3.解析并封装结果
         return new PageResult(pageInfo.getTotal(), voList);
+    }
+
+    @Override
+    public OrdersDetailVO getOrdersDetailById(Long id) {
+
+        Orders orderCondition = Orders.builder().id(id).build();
+        List<Orders> list = ordersMapper.list(orderCondition);
+        if (list.isEmpty()){
+            throw new BusinessException("没有对应订单");
+        }
+        Orders order = list.get(0);
+
+        List<OrderDetail> orderDetailsList = ordersDetailMapper.getOrderDetailsByOrderIds(Arrays.asList(order.getId()));
+        OrdersDetailVO ordersDetailVO = BeanHelper.copyProperties(order, OrdersDetailVO.class);
+        ordersDetailVO.setOrderDetailList(orderDetailsList);
+        return ordersDetailVO;
     }
 
 }

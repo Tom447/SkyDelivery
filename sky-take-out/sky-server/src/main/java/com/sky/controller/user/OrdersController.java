@@ -5,11 +5,13 @@ import com.github.pagehelper.Page;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
+import com.sky.entity.OrderDetail;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.OrdersService;
 import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderSubmitVO;
+import com.sky.vo.OrdersDetailVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -57,5 +59,19 @@ public class OrdersController {
         log.info("历史订单查询:{}", ordersPageQueryDTO);
         PageResult pageResult = ordersService.page(ordersPageQueryDTO);
         return Result.success(pageResult);
+    }
+
+
+    /**
+     * 根据ID查询订单详情
+     * @param id
+     * @return
+     */
+    @ApiOperation("查询订单详情")
+    @GetMapping("/orderDetail/{id}")
+    public Result<OrdersDetailVO> getOrdersDetail(@PathVariable Long id){
+        log.info("根据订单id查询订单详情{}",id);
+        OrdersDetailVO ordersDetailVO = ordersService.getOrdersDetailById(id);
+        return Result.success(ordersDetailVO);
     }
 }

@@ -8,6 +8,8 @@ import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.CategoryService;
 import com.sky.service.OrdersService;
+import com.sky.vo.OrderStatisticsVO;
+
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -37,6 +39,13 @@ public class OrdersController {
         return Result.success(pageResult);
     }
 
+    @ApiOperation("该接口用于统计各个状态的订单的数量")
+    @GetMapping("/statistics")
+    public Result<OrderStatisticsVO> statistics(){
+        log.info("统计各个状态的订单的数量");
+        OrderStatisticsVO orderStatisticsVO = ordersService.statistics();
+        return Result.success(orderStatisticsVO);
+    }
 
 
 }

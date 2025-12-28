@@ -16,6 +16,7 @@ import com.sky.result.PageResult;
 import com.sky.service.OrdersService;
 import com.sky.utils.BeanHelper;
 import com.sky.utils.WeChatPayUtil;
+import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrdersDetailVO;
 import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderSubmitVO;
@@ -187,13 +188,12 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
 
-
     @Override
     public OrdersDetailVO getOrdersDetailById(Long id) {
 
         Orders orderCondition = Orders.builder().id(id).build();
         List<Orders> list = ordersMapper.list(orderCondition);
-        if (list.isEmpty()){
+        if (list.isEmpty()) {
             throw new BusinessException("没有对应订单");
         }
         Orders order = list.get(0);
@@ -208,7 +208,7 @@ public class OrdersServiceImpl implements OrdersService {
     public void cancel(Long id) {
         Orders orderCondition = Orders.builder().id(id).build();
         List<Orders> list = ordersMapper.list(orderCondition);
-        if (list.isEmpty()){
+        if (list.isEmpty()) {
             throw new BusinessException("没有对应订单");
         }
         Orders order = list.get(0);
@@ -255,5 +255,39 @@ public class OrdersServiceImpl implements OrdersService {
 
         // 5. 批量插入购物车（注意：你的 ShoppingCartMapper 需支持 insertBatch）
         shoppingCartMapper.insertBatch(shoppingCartList);
+    }
+
+    @Override
+    public OrderStatisticsVO statistics() {
+        /**
+         * confirmed 待派送数量
+         * deliveryInProgress 派送中数量
+         * toBeConfirmed 待接单数量
+         */
+        //获得全部订单数据
+        List<Orders> list = ordersMapper.list(null);
+
+        Integer confirmed = 0;
+        Integer deliveryInProgress = 0;
+        Integer toBeConfirmed = 0;
+        for (Orders order : list) {
+            switch (order.getStatus()) {
+                case 2:
+                    toBeConfirmed++;
+                    break;
+                case 3:
+                    confirmed++;
+                    break;
+                case 4:
+                    deliveryInProgress++;
+                    break;
+            }
+        }
+
+        return OrderStatisticsVO.builder()
+                .toBeConfirmed(toBeConfirmed)
+                .confirmed(confirmed)
+                .deliveryInProgress(deliveryInProgress)
+                .build();
     }
 }

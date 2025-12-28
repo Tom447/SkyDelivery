@@ -10,6 +10,7 @@ import com.sky.service.CategoryService;
 import com.sky.service.OrdersService;
 import com.sky.vo.OrderStatisticsVO;
 
+import com.sky.vo.OrdersDetailVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +46,14 @@ public class OrdersController {
         log.info("统计各个状态的订单的数量");
         OrderStatisticsVO orderStatisticsVO = ordersService.statistics();
         return Result.success(orderStatisticsVO);
+    }
+
+    @ApiOperation("查询订单详情")
+    @GetMapping("/details/{id}")
+    public Result<OrdersDetailVO> getOrdersDetail(@PathVariable Long id){
+        log.info("根据订单id查询订单详情{}",id);
+        OrdersDetailVO ordersDetailVO = ordersService.getOrdersDetailById(id);
+        return Result.success(ordersDetailVO);
     }
 
 

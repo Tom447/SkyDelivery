@@ -2,6 +2,7 @@ package com.sky.controller.admin;
 
 import com.sky.dto.CategoryDTO;
 import com.sky.dto.CategoryPageQueryDTO;
+import com.sky.dto.OrdersConfirmDTO;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.entity.Category;
 import com.sky.result.PageResult;
@@ -55,6 +56,16 @@ public class OrdersController {
         OrdersDetailVO ordersDetailVO = ordersService.getOrdersDetailById(id);
         return Result.success(ordersDetailVO);
     }
+
+    @ApiOperation("接单的接口")
+    @PutMapping("/confirm")
+    public Result confirm(@RequestBody  OrdersConfirmDTO ordersConfirmDTO){
+        log.info("对{}接单",ordersConfirmDTO);
+        ordersService.confirm(ordersConfirmDTO);
+        return Result.success();
+    }
+
+
 
 
 }

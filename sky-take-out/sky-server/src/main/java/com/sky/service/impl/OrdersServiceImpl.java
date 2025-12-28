@@ -6,6 +6,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
+import com.sky.dto.OrdersConfirmDTO;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
@@ -289,5 +290,17 @@ public class OrdersServiceImpl implements OrdersService {
                 .confirmed(confirmed)
                 .deliveryInProgress(deliveryInProgress)
                 .build();
+    }
+
+    @Override
+    public void confirm(OrdersConfirmDTO ordersConfirmDTO) {
+        Orders orderCondition = Orders.builder().id(ordersConfirmDTO.getId()).build();
+        List<Orders> list = ordersMapper.list(orderCondition);
+        if (list.isEmpty()){
+            throw new BusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        Orders orders = list.get(0);
+        orders.setStatus(Orders.ORDER_STAUTS_CONFIRMED);
+        ordersMapper.update(orders);
     }
 }

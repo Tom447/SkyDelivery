@@ -374,4 +374,25 @@ public class OrdersServiceImpl implements OrdersService {
         orders.setCancelReason(ordersCancelDTO.getCancelReason());
         ordersMapper.update(orders);
     }
+
+    @Override
+    public void delivery(Long id) {
+        /**
+         * - 判断订单是否存在 以及 订单的状态是否正确 （只有订单状态为 **已接单** 的订单， 才可以进行派送）
+         * - 更新订单的状态为 **派送中**
+         */
+        Orders orderCondition = Orders.builder().id(id).build();
+        List<Orders> list = ordersMapper.list(orderCondition);
+        //判断订单是否存在
+        if (list.isEmpty()) {
+            throw new BusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        Orders orders = list.get(0);
+        //只有订单状态为已接单才可进行配送
+        if (orders.getStatus() == Orders.ORDER_STAUTS_CONFIRMED){
+            //更新派送状态为派送中
+            orders.setStatus(Orders.ORDER_STAUTS_DELIVERY_IN_PROGRESS);
+            ordersMapper.update(orders);
+        }
+    }
 }

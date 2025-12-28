@@ -78,6 +78,14 @@ public class OrdersController {
         return Result.success();
     }
 
+    @ApiOperation("派送订单")
+    @PutMapping("/delivery/{id}")
+    public Result delivery(@PathVariable Long id){
+        log.info("对id:{}", id);
+        ordersService.delivery(id);
+        return Result.success();
+    }
+
 
 
 }

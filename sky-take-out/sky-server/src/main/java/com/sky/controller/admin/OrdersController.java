@@ -1,9 +1,6 @@
 package com.sky.controller.admin;
 
-import com.sky.dto.CategoryDTO;
-import com.sky.dto.CategoryPageQueryDTO;
-import com.sky.dto.OrdersConfirmDTO;
-import com.sky.dto.OrdersPageQueryDTO;
+import com.sky.dto.*;
 import com.sky.entity.Category;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
@@ -65,7 +62,13 @@ public class OrdersController {
         return Result.success();
     }
 
-
+    @ApiOperation("拒单的接口")
+    @PutMapping("/rejection")
+    public Result rejection(@RequestBody OrdersRejectionDTO ordersRejectionDTO){
+        log.info("对{}拒单",ordersRejectionDTO);
+        ordersService.rejection(ordersRejectionDTO);
+        return Result.success();
+    }
 
 
 }

@@ -6,10 +6,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
-import com.sky.dto.OrdersConfirmDTO;
-import com.sky.dto.OrdersPageQueryDTO;
-import com.sky.dto.OrdersPaymentDTO;
-import com.sky.dto.OrdersSubmitDTO;
+import com.sky.dto.*;
 import com.sky.entity.*;
 import com.sky.exception.BusinessException;
 import com.sky.mapper.*;
@@ -296,11 +293,49 @@ public class OrdersServiceImpl implements OrdersService {
     public void confirm(OrdersConfirmDTO ordersConfirmDTO) {
         Orders orderCondition = Orders.builder().id(ordersConfirmDTO.getId()).build();
         List<Orders> list = ordersMapper.list(orderCondition);
-        if (list.isEmpty()){
+        //订单只有状态为2（待接单）时才可以接单
+        if (list.isEmpty()) {
             throw new BusinessException(MessageConstant.ORDER_NOT_FOUND);
         }
         Orders orders = list.get(0);
-        orders.setStatus(Orders.ORDER_STAUTS_CONFIRMED);
+
+        if (orders.getStatus() == Orders.ORDER_STAUTS_TO_BE_CONFIRMED) {//当前订单存在且状态为2
+            orders.setStatus(Orders.ORDER_STAUTS_CONFIRMED);
+            ordersMapper.update(orders);
+        } else {//不满足接单条件
+            return;
+        }
+    }
+
+    @Override
+    @Transactional
+    public void rejection(OrdersRejectionDTO ordersRejectionDTO) {
+        Orders orderCondition = Orders.builder().id(ordersRejectionDTO.getId()).build();
+        List<Orders> list = ordersMapper.list(orderCondition);
+        //判断订单是否存在
+        if (list.isEmpty()) {
+            throw new BusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        Orders orders = list.get(0);
+        //如果当前订单的支付状态为已支付，拒单需要退款
+        if (orders.getPayStatus() == Orders.PAY_STATUS_PAID) {
+            try {
+                weChatPayUtil.refund(
+                        orders.getNumber(),
+                        "REFUND_" + System.currentTimeMillis(),
+                        orders.getAmount(),
+                        orders.getAmount()
+                );
+                // 退款成功，更新订单状态
+                orders.setPayStatus(Orders.PAY_STATUS_REFUND);
+            } catch (Exception e) {
+                log.error("退款失败", e);
+                throw new BusinessException("退款失败，请联系客服");
+            }
+        }
+        //更新订单状态为已取消
+        orders.setStatus(Orders.ORDER_STAUTS_CANCELLED);
+        orders.setRejectionReason(ordersRejectionDTO.getRejectionReason());
         ordersMapper.update(orders);
     }
 }

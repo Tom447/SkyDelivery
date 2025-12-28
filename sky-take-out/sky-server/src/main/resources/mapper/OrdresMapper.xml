@@ -80,4 +80,63 @@
         WHERE id = #{id}
     </update>
 
+    <!--统一条件查询-->
+    <select id="list" resultType="com.sky.entity.Orders">
+        SELECT
+        id, number, status, user_id, address_book_id,
+        order_time, checkout_time, pay_method, pay_status,
+        amount, remark, phone, address, consignee,
+        cancel_reason, rejection_reason, cancel_time,
+        estimated_delivery_time, delivery_status, delivery_time,
+        pack_amount, tableware_number, tableware_status
+        FROM orders
+        <where>
+            <!-- 只拼接非 null 的字段 -->
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+            <if test="number != null and number != ''">
+                AND number = #{number}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="userId != null">
+                AND user_id = #{userId}
+            </if>
+            <if test="addressBookId != null">
+                AND address_book_id = #{addressBookId}
+            </if>
+            <if test="orderTime != null">
+                AND order_time = #{orderTime}
+            </if>
+            <if test="checkoutTime != null">
+                AND checkout_time = #{checkoutTime}
+            </if>
+            <if test="payMethod != null">
+                AND pay_method = #{payMethod}
+            </if>
+            <if test="payStatus != null">
+                AND pay_status = #{payStatus}
+            </if>
+            <if test="amount != null">
+                AND amount = #{amount}
+            </if>
+            <if test="remark != null and remark != ''">
+                AND remark = #{remark}
+            </if>
+            <if test="phone != null and phone != ''">
+                AND phone = #{phone}
+            </if>
+            <if test="address != null and address != ''">
+                AND address = #{address}
+            </if>
+            <if test="consignee != null and consignee != ''">
+                AND consignee = #{consignee}
+            </if>
+            <!-- 其他字段按需添加 -->
+        </where>
+        ORDER BY order_time DESC
+    </select>
+
 </mapper>

@@ -6,6 +6,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 @Mapper
 public interface OrdersMapper {
 
@@ -18,5 +20,7 @@ public interface OrdersMapper {
     Orders getByNumber(String orderNumber);
 
     void update(Orders orders);
+
+    List<Orders> list(Orders orders);
 }
 

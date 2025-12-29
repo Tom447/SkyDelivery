@@ -115,7 +115,7 @@ public class OrdersServiceImpl implements OrdersService {
         BaiduLocation userLocation = baiduDirectionUtil.getAddrOfLatAndLng(userAddressName);
 //        2.通过location1和location2得到距离distance
         Integer distance = baiduDirectionUtil.getDirecirectionLite(shopLocation.getLoation(), userLocation.getLoation());
-        if (distance > skyProperties.getDistance().getDistanceByM()){
+        if (distance > skyProperties.getDistance().getDistanceByM()) {
             throw new BusinessException("超出配送距离");
         }
         return orderSubmitVO;
@@ -150,7 +150,7 @@ public class OrdersServiceImpl implements OrdersService {
         //先查到对应的订单
         Orders condition = Orders.builder().userId(userId).number(ordersPaymentDTO.getOrderNumber()).build();
         List<Orders> list = ordersMapper.list(condition);
-        if (list.isEmpty()){
+        if (list.isEmpty()) {
             throw new BusinessException(MessageConstant.ORDER_NOT_FOUND);
         }
         Orders orders = list.get(0);
@@ -260,7 +260,7 @@ public class OrdersServiceImpl implements OrdersService {
         Orders orders = list.get(0);
 //        校验订单是否可以被取消 - 仅 **待付款** 和 **待接单** 状态的订单， 可以直接取消 ; 其他的不能取消
         if (orders.getStatus() == Orders.ORDER_STAUTS_PENDING_PAYMENT
-                || orders.getStatus() == Orders.ORDER_STAUTS_TO_BE_CONFIRMED){//仅 **待付款** 和 **待接单** 状态的订单
+                || orders.getStatus() == Orders.ORDER_STAUTS_TO_BE_CONFIRMED) {//仅 **待付款** 和 **待接单** 状态的订单
             //如果当前订单的支付状态为已支付，拒单需要退款
             if (orders.getPayStatus() == Orders.PAY_STATUS_PAID) {
                 try {
@@ -280,7 +280,7 @@ public class OrdersServiceImpl implements OrdersService {
             //更新订单状态为已取消
             orders.setStatus(Orders.ORDER_STAUTS_CANCELLED);
             ordersMapper.update(orders);
-        }else{//其他的不能取消
+        } else {//其他的不能取消
             throw new BusinessException("该订单不可取消");
         }
     }
@@ -484,5 +484,45 @@ public class OrdersServiceImpl implements OrdersService {
             orders.setStatus(Orders.ORDER_STAUTS_COMPLETED);
             ordersMapper.update(orders);
         }
+    }
+
+    //商家取消该订单
+
+    /**
+     * - 校验订单是否存在
+     * - 如果订单的支付状态为 **已支付** , 是需要退款的 (调用weChatUtil.refund方法退款)， 且将支付状态改为 **退款**
+     * - 更新订单的状态为 **已取消**s
+     *
+     * @param ordersCancelDTO
+     */
+    @Override
+    public void adminCancel(OrdersCancelDTO ordersCancelDTO) {
+        //        1. 校验订单是否存在
+        Orders orderCondition = Orders.builder().id(ordersCancelDTO.getId()).build();
+        List<Orders> list = ordersMapper.list(orderCondition);
+        if (list.isEmpty()) {
+            throw new BusinessException("没有对应订单");
+        }
+        Orders orders = list.get(0);
+//        校验订单是否可以被取消 - 仅 **待付款** 和 **待接单** 状态的订单， 可以直接取消 ; 其他的不能取消
+        //如果当前订单的支付状态为已支付，拒单需要退款
+        if (orders.getPayStatus() == Orders.PAY_STATUS_PAID) {
+            try {
+                weChatPayUtil.refund(
+                        orders.getNumber(),
+                        "REFUND_" + System.currentTimeMillis(),
+                        orders.getAmount(),
+                        orders.getAmount()
+                );
+               //将支付状态改为退款
+                orders.setPayStatus(Orders.PAY_STATUS_REFUND);
+            } catch (Exception e) {
+                log.error("退款失败", e);
+                throw new BusinessException("退款失败，请联系客服");
+            }
+        }
+        //更新订单状态为已取消
+        orders.setStatus(Orders.ORDER_STAUTS_CANCELLED);
+        ordersMapper.update(orders);
     }
 }

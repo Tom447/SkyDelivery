@@ -44,5 +44,7 @@ public interface OrdersService {
     void delivery(Long id);
 
     void complete(Long id);
+
+    void adminCancel(OrdersCancelDTO ordersCancelDTO);
 }
 

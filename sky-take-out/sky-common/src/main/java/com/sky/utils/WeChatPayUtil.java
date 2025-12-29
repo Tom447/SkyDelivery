@@ -40,8 +40,8 @@ public class WeChatPayUtil {
     //微信支付下单接口地址
     public static final String JSAPI = "https://api.mch.weixin.qq.com/v3/pay/transactions/jsapi";
 
-    //申请退款接口地址
-    public static final String REFUNDS = "https://api.mch.weixin.qq.com/v3/refund/domestic/refunds";
+    // 生产退款地址
+    public static final String REFUNDS_PROD = "https://api.mch.weixin.qq.com/v3/refund/domestic/refunds";
 
     //沙箱模式
     // 沙箱环境接口地址（注意 sandboxnew）
@@ -235,21 +235,33 @@ public class WeChatPayUtil {
      * @return
      */
     public String refund(String outTradeNo, String outRefundNo, BigDecimal refund, BigDecimal total) throws Exception {
+        if (weChatProperties.isSandbox()) {
+            log.info("【沙箱模式】跳过真实退款，模拟退款成功。订单号: {}, 退款单号: {}", outTradeNo, outRefundNo);
+            // 返回一个模拟的成功响应（符合微信退款接口格式）
+            JSONObject mockResponse = new JSONObject();
+            mockResponse.put("refund_id", "mock_refund_id_" + System.currentTimeMillis());
+            mockResponse.put("out_refund_no", outRefundNo);
+            mockResponse.put("status", "SUCCESS");
+            return mockResponse.toJSONString();
+        }
+
+        // 非沙箱：走真实退款
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("out_trade_no", outTradeNo);
         jsonObject.put("out_refund_no", outRefundNo);
 
         JSONObject amount = new JSONObject();
-        amount.put("refund", refund.multiply(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_UP).intValue());
-        amount.put("total", total.multiply(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_UP).intValue());
+        int refundInCent = refund.multiply(BigDecimal.valueOf(100)).setScale(0, BigDecimal.ROUND_HALF_UP).intValue();
+        int totalInCent = total.multiply(BigDecimal.valueOf(100)).setScale(0, BigDecimal.ROUND_HALF_UP).intValue();
+
+        amount.put("refund", refundInCent);
+        amount.put("total", totalInCent);
         amount.put("currency", "CNY");
 
         jsonObject.put("amount", amount);
         jsonObject.put("notify_url", weChatProperties.getRefundNotifyUrl());
 
         String body = jsonObject.toJSONString();
-
-        //调用申请退款接口
-        return post(REFUNDS, body);
+        return post(REFUNDS_PROD, body);
     }
 }

@@ -239,6 +239,7 @@ public class OrdersServiceImpl implements OrdersService {
     }
 
     @Override
+    @Transactional
     public void cancel(Long id) {
 
         /**
@@ -279,8 +280,9 @@ public class OrdersServiceImpl implements OrdersService {
             //更新订单状态为已取消
             orders.setStatus(Orders.ORDER_STAUTS_CANCELLED);
             ordersMapper.update(orders);
+        }else{//其他的不能取消
+            throw new BusinessException("该订单不可取消");
         }
-        ordersMapper.update(orders);
     }
 
     @Override

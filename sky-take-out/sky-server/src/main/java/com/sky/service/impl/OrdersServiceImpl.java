@@ -146,14 +146,17 @@ public class OrdersServiceImpl implements OrdersService {
         OrderPaymentVO vo = jsonObject.toJavaObject(OrderPaymentVO.class);
         vo.setPackageStr(jsonObject.getString("package"));
         log.info("✅ 生成订单{}, {}支付成功", vo.toString(), ordersPaymentDTO.getPayMethod() == 1 ? "微信" : "支付宝");
-
-        Orders orders = Orders.builder()
-                .userId(userId)
-                .number(ordersPaymentDTO.getOrderNumber())
-                .payMethod(ordersPaymentDTO.getPayMethod())
-                .payStatus(Orders.PAY_STATUS_PAID)
-                .status(Orders.ORDER_STAUTS_TO_BE_CONFIRMED)
-                .build();
+//        支付成功了，更新该订单状态
+        //先查到对应的订单
+        Orders condition = Orders.builder().userId(userId).number(ordersPaymentDTO.getOrderNumber()).build();
+        List<Orders> list = ordersMapper.list(condition);
+        if (list.isEmpty()){
+            throw new BusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        Orders orders = list.get(0);
+        orders.setPayMethod(ordersPaymentDTO.getPayMethod());
+        orders.setPayStatus(Orders.PAY_STATUS_PAID);
+        orders.setStatus(Orders.ORDER_STAUTS_TO_BE_CONFIRMED);
 
         ordersMapper.update(orders);
         return vo;
@@ -237,15 +240,47 @@ public class OrdersServiceImpl implements OrdersService {
 
     @Override
     public void cancel(Long id) {
+
+        /**
+         * 1. 校验订单是否存在
+         * 2. 校验订单是否可以被取消 - 仅 **待付款** 和 **待接单** 状态的订单， 可以直接取消 ; 其他的不能取消
+         * 3. 如果订单状态为 **待接单** 且 支付状态为 **已支付** 的情况下, 还需要进行退款操作(调用weChatUtil.refund方法退款)， 且将支付状态改为 **退款**
+         * 4. 最后取消订单，其实就是更新订单状态为 **已取消** （可以将取消原因设置为：用户取消）
+         *
+         * 流程
+         * [待付款] → [已付款] → [待接单] → [已接单] → [服务中] → [已完成]
+         */
+//        1. 校验订单是否存在
         Orders orderCondition = Orders.builder().id(id).build();
         List<Orders> list = ordersMapper.list(orderCondition);
         if (list.isEmpty()) {
             throw new BusinessException("没有对应订单");
         }
-        Orders order = list.get(0);
-        order.setStatus(Orders.ORDER_STAUTS_CANCELLED);
-
-        ordersMapper.update(order);
+        Orders orders = list.get(0);
+//        校验订单是否可以被取消 - 仅 **待付款** 和 **待接单** 状态的订单， 可以直接取消 ; 其他的不能取消
+        if (orders.getStatus() == Orders.ORDER_STAUTS_PENDING_PAYMENT
+                || orders.getStatus() == Orders.ORDER_STAUTS_TO_BE_CONFIRMED){//仅 **待付款** 和 **待接单** 状态的订单
+            //如果当前订单的支付状态为已支付，拒单需要退款
+            if (orders.getPayStatus() == Orders.PAY_STATUS_PAID) {
+                try {
+                    weChatPayUtil.refund(
+                            orders.getNumber(),
+                            "REFUND_" + System.currentTimeMillis(),
+                            orders.getAmount(),
+                            orders.getAmount()
+                    );
+                    // 退款成功，更新订单状态
+                    orders.setPayStatus(Orders.PAY_STATUS_REFUND);
+                } catch (Exception e) {
+                    log.error("退款失败", e);
+                    throw new BusinessException("退款失败，请联系客服");
+                }
+            }
+            //更新订单状态为已取消
+            orders.setStatus(Orders.ORDER_STAUTS_CANCELLED);
+            ordersMapper.update(orders);
+        }
+        ordersMapper.update(orders);
     }
 
     @Override

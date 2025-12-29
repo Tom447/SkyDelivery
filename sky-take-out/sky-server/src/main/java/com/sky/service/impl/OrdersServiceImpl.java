@@ -103,7 +103,6 @@ public class OrdersServiceImpl implements OrdersService {
         OrderSubmitVO orderSubmitVO = OrderSubmitVO.builder().id(orders.getId()).orderTime(orders.getOrderTime()).orderNumber(orders.getNumber()).orderAmount(orders.getAmount()).build();
 
 
-        //TODO...用户下单判断配送距离是否超了
         /**
          * 1.得到shop、user各自的经纬度location1、 location2
          * 2.通过location1和location2得到距离distance
@@ -146,7 +145,17 @@ public class OrdersServiceImpl implements OrdersService {
 
         OrderPaymentVO vo = jsonObject.toJavaObject(OrderPaymentVO.class);
         vo.setPackageStr(jsonObject.getString("package"));
-        log.info("✅ 生成订单{}", vo.toString());
+        log.info("✅ 生成订单{}, {}支付成功", vo.toString(), ordersPaymentDTO.getPayMethod() == 1 ? "微信" : "支付宝");
+
+        Orders orders = Orders.builder()
+                .userId(userId)
+                .number(ordersPaymentDTO.getOrderNumber())
+                .payMethod(ordersPaymentDTO.getPayMethod())
+                .payStatus(Orders.PAY_STATUS_PAID)
+                .status(Orders.ORDER_STAUTS_TO_BE_CONFIRMED)
+                .build();
+
+        ordersMapper.update(orders);
         return vo;
     }
 

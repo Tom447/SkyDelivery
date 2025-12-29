@@ -19,6 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Objects;
+
 @Slf4j
 @Api(tags = "C端-订单操作")
 @RestController()
@@ -31,7 +33,7 @@ public class OrdersController {
 
     @ApiOperation("提交订单")
     @PostMapping("/submit")
-    public Result<OrderSubmitVO> submit(@RequestBody OrdersSubmitDTO ordersSubmitDTO){
+    public Result<OrderSubmitVO> submit(@RequestBody OrdersSubmitDTO ordersSubmitDTO) {
         log.info("用户下单...");
         OrderSubmitVO orderSubmitVO = ordersService.submit(ordersSubmitDTO);
         return Result.success(orderSubmitVO);
@@ -40,7 +42,6 @@ public class OrdersController {
 
     /**
      * 订单支付
-     *
      *
      * @param ordersPaymentDTO
      * @return
@@ -51,12 +52,16 @@ public class OrdersController {
         log.info("订单支付：{}", ordersPaymentDTO);
         OrderPaymentVO orderPaymentVO = ordersService.payment(ordersPaymentDTO);
         log.info("生成预支付交易单：{}", orderPaymentVO);
-        return Result.success(orderPaymentVO);
+        if(Objects.isNull(orderPaymentVO)){
+            return Result.error("支付失败");
+        }else{
+            return Result.success(orderPaymentVO);
+        }
     }
 
     @GetMapping("/historyOrders")
     @ApiOperation("历史订单查询")
-    public Result<PageResult> pageResultResult(OrdersPageQueryDTO ordersPageQueryDTO){
+    public Result<PageResult> pageResultResult(OrdersPageQueryDTO ordersPageQueryDTO) {
         log.info("历史订单查询:{}", ordersPageQueryDTO);
         PageResult pageResult = ordersService.page(ordersPageQueryDTO);
         return Result.success(pageResult);
@@ -65,28 +70,29 @@ public class OrdersController {
 
     /**
      * 根据ID查询订单详情
+     *
      * @param id
      * @return
      */
     @ApiOperation("查询订单详情")
     @GetMapping("/orderDetail/{id}")
-    public Result<OrdersDetailVO> getOrdersDetail(@PathVariable Long id){
-        log.info("根据订单id查询订单详情{}",id);
+    public Result<OrdersDetailVO> getOrdersDetail(@PathVariable Long id) {
+        log.info("根据订单id查询订单详情{}", id);
         OrdersDetailVO ordersDetailVO = ordersService.getOrdersDetailById(id);
         return Result.success(ordersDetailVO);
     }
 
     @ApiOperation("取消订单")
     @PutMapping("/cancel/{id}")
-    public Result cancel(@PathVariable Long id){
-        log.info("取消id：{}订单",id);
+    public Result cancel(@PathVariable Long id) {
+        log.info("取消id：{}订单", id);
         ordersService.cancel(id);
         return Result.success();
     }
 
     @ApiOperation("再来一单")
     @PostMapping("/repetition/{id}")
-    public Result repetition(@PathVariable Long id){
+    public Result repetition(@PathVariable Long id) {
         log.info("订单Id:{}再来一单", id);
         ordersService.again(id);
         return Result.success();

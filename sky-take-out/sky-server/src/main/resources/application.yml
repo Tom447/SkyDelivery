@@ -26,8 +26,6 @@ spring:
     username: 1142322503@qq.com
     protocol: smtps
 
-
-
 #Mybatis的配置信息
 mybatis:
   mapper-locations: classpath:mapper/*.xml  #mapper配置文件
@@ -72,6 +70,16 @@ sky:
     refundNotifyUrl: ${sky.wechat.refundNotifyUrl}
     # 新增：是否启用沙箱
     sandbox: true
+  #百度的服务
+    #商家位置
+  shop:
+    address: 上海市浦东新区张江高科技园区博云路2号
+  baidu:
+    ak: ${sky.shop.ak}
+    geoCoderUrl: https://api.map.baidu.com/geocoding/v3
+    drivingUrl: https://api.map.baidu.com/directionlite/v1/driving
+  distance:
+    distanceByM: 5000
 
 #端口号
 server:

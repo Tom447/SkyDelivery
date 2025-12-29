@@ -10,8 +10,10 @@ import com.sky.dto.*;
 import com.sky.entity.*;
 import com.sky.exception.BusinessException;
 import com.sky.mapper.*;
+import com.sky.properties.SkyProperties;
 import com.sky.result.PageResult;
 import com.sky.service.OrdersService;
+import com.sky.utils.BaiduDirectionUtil;
 import com.sky.utils.BeanHelper;
 import com.sky.utils.WeChatPayUtil;
 import com.sky.vo.OrderStatisticsVO;
@@ -46,6 +48,10 @@ public class OrdersServiceImpl implements OrdersService {
     private UserMapper userMapper;
     @Autowired
     private WeChatPayUtil weChatPayUtil;
+    @Autowired
+    private SkyProperties skyProperties;
+    @Autowired
+    private BaiduDirectionUtil baiduDirectionUtil;
 
 
     @Override
@@ -95,6 +101,24 @@ public class OrdersServiceImpl implements OrdersService {
 
         //4.组装数据并返回
         OrderSubmitVO orderSubmitVO = OrderSubmitVO.builder().id(orders.getId()).orderTime(orders.getOrderTime()).orderNumber(orders.getNumber()).orderAmount(orders.getAmount()).build();
+
+
+        //TODO...用户下单判断配送距离是否超了
+        /**
+         * 1.得到shop、user各自的经纬度location1、 location2
+         * 2.通过location1和location2得到距离distance
+         * 3.判断distance是否超过5公里，超过5公里抛异常
+         */
+//        1.得到shop、user各自的经纬度location1、 location2
+        String shopAddressName = skyProperties.getShop().toString();
+        String userAddressName = orders.getAddress();
+        BaiduLocation shopLocation = baiduDirectionUtil.getAddrOfLatAndLng(shopAddressName);
+        BaiduLocation userLocation = baiduDirectionUtil.getAddrOfLatAndLng(userAddressName);
+//        2.通过location1和location2得到距离distance
+        Integer distance = baiduDirectionUtil.getDirecirectionLite(shopLocation.getLoation(), userLocation.getLoation());
+        if (distance > skyProperties.getDistance().getDistanceByM()){
+            throw new BusinessException("超出配送距离");
+        }
         return orderSubmitVO;
     }
 
@@ -389,7 +413,7 @@ public class OrdersServiceImpl implements OrdersService {
         }
         Orders orders = list.get(0);
         //只有订单状态为已接单才可进行配送
-        if (orders.getStatus() == Orders.ORDER_STAUTS_CONFIRMED){
+        if (orders.getStatus() == Orders.ORDER_STAUTS_CONFIRMED) {
             //更新派送状态为派送中
             orders.setStatus(Orders.ORDER_STAUTS_DELIVERY_IN_PROGRESS);
             ordersMapper.update(orders);
@@ -409,7 +433,7 @@ public class OrdersServiceImpl implements OrdersService {
             throw new BusinessException(MessageConstant.ORDER_NOT_FOUND);
         }
         Orders orders = list.get(0);
-        if (orders.getStatus() == Orders.ORDER_STAUTS_DELIVERY_IN_PROGRESS){//只有订单状态为 **派送中** 的订单， 才可以进行完成订单
+        if (orders.getStatus() == Orders.ORDER_STAUTS_DELIVERY_IN_PROGRESS) {//只有订单状态为 **派送中** 的订单， 才可以进行完成订单
 //            更新订单的状态为 **已完成**
             orders.setStatus(Orders.ORDER_STAUTS_COMPLETED);
             ordersMapper.update(orders);

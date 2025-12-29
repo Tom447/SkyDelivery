@@ -1,14 +1,37 @@
 {
   "groups": [
     {
+      "name": "sky",
+      "type": "com.sky.properties.SkyProperties",
+      "sourceType": "com.sky.properties.SkyProperties"
+    },
+    {
       "name": "sky.alioss",
       "type": "com.sky.properties.AliOssProperties",
       "sourceType": "com.sky.properties.AliOssProperties"
     },
     {
+      "name": "sky.baidu",
+      "type": "com.sky.properties.SkyProperties$Baidu",
+      "sourceType": "com.sky.properties.SkyProperties",
+      "sourceMethod": "getBaidu()"
+    },
+    {
+      "name": "sky.distance",
+      "type": "com.sky.properties.SkyProperties$Distance",
+      "sourceType": "com.sky.properties.SkyProperties",
+      "sourceMethod": "getDistance()"
+    },
+    {
       "name": "sky.jwt",
       "type": "com.sky.properties.JwtProperties",
       "sourceType": "com.sky.properties.JwtProperties"
+    },
+    {
+      "name": "sky.shop",
+      "type": "com.sky.properties.SkyProperties$Shop",
+      "sourceType": "com.sky.properties.SkyProperties",
+      "sourceMethod": "getShop()"
     },
     {
       "name": "sky.wechat",
@@ -38,6 +61,26 @@
       "sourceType": "com.sky.properties.AliOssProperties"
     },
     {
+      "name": "sky.baidu.ak",
+      "type": "java.lang.String",
+      "sourceType": "com.sky.properties.SkyProperties$Baidu"
+    },
+    {
+      "name": "sky.baidu.driving-url",
+      "type": "java.lang.String",
+      "sourceType": "com.sky.properties.SkyProperties$Baidu"
+    },
+    {
+      "name": "sky.baidu.geo-coder-url",
+      "type": "java.lang.String",
+      "sourceType": "com.sky.properties.SkyProperties$Baidu"
+    },
+    {
+      "name": "sky.distance.distance-by-m",
+      "type": "java.lang.Integer",
+      "sourceType": "com.sky.properties.SkyProperties$Distance"
+    },
+    {
       "name": "sky.jwt.admin-secret-key",
       "type": "java.lang.String",
       "description": "管理端员工生成jwt令牌相关配置",
@@ -51,8 +94,7 @@
     {
       "name": "sky.jwt.admin-ttl",
       "type": "java.lang.Long",
-      "sourceType": "com.sky.properties.JwtProperties",
-      "defaultValue": 0
+      "sourceType": "com.sky.properties.JwtProperties"
     },
     {
       "name": "sky.jwt.user-secret-key",
@@ -68,8 +110,12 @@
     {
       "name": "sky.jwt.user-ttl",
       "type": "java.lang.Long",
-      "sourceType": "com.sky.properties.JwtProperties",
-      "defaultValue": 0
+      "sourceType": "com.sky.properties.JwtProperties"
+    },
+    {
+      "name": "sky.shop.address",
+      "type": "java.lang.String",
+      "sourceType": "com.sky.properties.SkyProperties$Shop"
     },
     {
       "name": "sky.wechat.api-v3-key",

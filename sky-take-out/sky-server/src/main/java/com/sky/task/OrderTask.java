@@ -46,4 +46,29 @@ public class OrderTask {
             log.debug("无超时订单需要处理");
         }
     }
+
+    /**
+     * 每日凌晨1点完成订单
+     */
+    @Scheduled(cron = "0 0 1 * * ?") // 更简单可靠
+    public void completeOrder() {
+        //1.查询符号条件的（派送中， 2小时之前下单）的订单
+        LocalDateTime timeoutTime = LocalDateTime.now().minusHours(2);
+
+        List<Orders> ordersList = ordersMapper.selectByStatusAndLtTime(
+                Orders.ORDER_STAUTS_DELIVERY_IN_PROGRESS,
+                timeoutTime
+        );
+        //2.如果存在这样的订单，完成订单-修改订单的状态
+        if (!CollectionUtils.isEmpty(ordersList)) {
+            ordersList.forEach(order -> {
+                log.info("执行定时完成订单的操作,{}", order.getId());
+                order.setStatus(Orders.ORDER_STAUTS_CONFIRMED);
+                order.setDeliveryTime(LocalDateTime.now());
+                ordersMapper.update(order);
+            });
+        } else {
+            log.debug("无超时订单需要处理");
+        }
+    }
 }

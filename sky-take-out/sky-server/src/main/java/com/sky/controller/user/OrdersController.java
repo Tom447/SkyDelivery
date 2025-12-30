@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Objects;
 
 @Slf4j
@@ -33,7 +34,7 @@ public class OrdersController {
 
     @ApiOperation("提交订单")
     @PostMapping("/submit")
-    public Result<OrderSubmitVO> submit(@RequestBody OrdersSubmitDTO ordersSubmitDTO) {
+    public Result<OrderSubmitVO> submit(@RequestBody OrdersSubmitDTO ordersSubmitDTO) throws Exception {
         log.info("用户下单...");
         OrderSubmitVO orderSubmitVO = ordersService.submit(ordersSubmitDTO);
         return Result.success(orderSubmitVO);

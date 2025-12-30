@@ -8,9 +8,11 @@ import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrdersDetailVO;
 
+import java.io.IOException;
+
 public interface OrdersService {
 
-    OrderSubmitVO submit(OrdersSubmitDTO ordersSubmitDTO);
+    OrderSubmitVO submit(OrdersSubmitDTO ordersSubmitDTO) throws IOException;
 
     /**
      * 订单支付

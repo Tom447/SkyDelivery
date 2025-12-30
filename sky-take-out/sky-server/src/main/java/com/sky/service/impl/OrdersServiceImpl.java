@@ -20,12 +20,14 @@ import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrdersDetailVO;
 import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderSubmitVO;
+import com.sky.websocket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -52,11 +54,13 @@ public class OrdersServiceImpl implements OrdersService {
     private SkyProperties skyProperties;
     @Autowired
     private BaiduDirectionUtil baiduDirectionUtil;
+    @Autowired
+    private WebSocketServer webSocketServer;
 
 
     @Override
     @Transactional
-    public OrderSubmitVO submit(OrdersSubmitDTO ordersSubmitDTO) {
+    public OrderSubmitVO submit(OrdersSubmitDTO ordersSubmitDTO) throws IOException {
         //0. 查询收货地址信息，地址为空，不能下单
         AddressBook addressBook = addressMapper.getAddressById(ordersSubmitDTO.getAddressBookId());
         if (Objects.isNull(addressBook)) {
@@ -118,6 +122,8 @@ public class OrdersServiceImpl implements OrdersService {
         if (distance > skyProperties.getDistance().getDistanceByM()) {
             throw new BusinessException("超出配送距离");
         }
+
+
         return orderSubmitVO;
     }
 
@@ -159,6 +165,14 @@ public class OrdersServiceImpl implements OrdersService {
         orders.setStatus(Orders.ORDER_STAUTS_TO_BE_CONFIRMED);
 
         ordersMapper.update(orders);
+        //        推送消息给管理端，告诉管理端有新的订单产生了 ---{"type":1, "orderId":12, "content":"订单号: 123123131"}
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("type", 1);
+        paramMap.put("orderId", orders.getId());
+        paramMap.put("content","订单号: "+orders.getNumber());
+        log.info("向客户端推送消息", paramMap);
+        webSocketServer.sendMessageToAllClient(JSONObject.toJSONString(paramMap));
+
         return vo;
     }
 

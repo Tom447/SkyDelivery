@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
@@ -25,5 +26,7 @@ public interface OrdersMapper {
 
     @Select("select * from orders where id = #{orderId}")
     Orders getById(Long orderId);
+    @Select("select * from orders where status = #{status} and order_time < #{before15Time}")
+    List<Orders> selectByStatusAndLtTime(int status, LocalDateTime before15Time);
 }
 

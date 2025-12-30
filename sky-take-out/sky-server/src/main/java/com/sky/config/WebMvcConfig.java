@@ -33,12 +33,14 @@ public class WebMvcConfig implements WebMvcConfigurer {
         registry.addInterceptor(userLoginTokenInterceptor).addPathPatterns("/user/**").excludePathPatterns("/user/user/login","/user/shop/status");
     }
 
+
+    //扩展的全局的日期格式转换器
     @Override
     public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
         log.info("扩展spring框架的消息转换器，在转化json格式的数据时，要使用自定义的转换器");
         MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
         mappingJackson2HttpMessageConverter.setObjectMapper(new JacksonObjectMapper());
-
+        //将转换器插入到第0为，保证转换
         converters.add(0, mappingJackson2HttpMessageConverter);
     }
 }

@@ -16,10 +16,7 @@ import com.sky.service.OrdersService;
 import com.sky.utils.BaiduDirectionUtil;
 import com.sky.utils.BeanHelper;
 import com.sky.utils.WeChatPayUtil;
-import com.sky.vo.OrderStatisticsVO;
-import com.sky.vo.OrdersDetailVO;
-import com.sky.vo.OrderPaymentVO;
-import com.sky.vo.OrderSubmitVO;
+import com.sky.vo.*;
 import com.sky.websocket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +53,8 @@ public class OrdersServiceImpl implements OrdersService {
     private BaiduDirectionUtil baiduDirectionUtil;
     @Autowired
     private WebSocketServer webSocketServer;
+    @Autowired
+    private OrdersService ordersService;
 
 
     @Override
@@ -169,7 +168,7 @@ public class OrdersServiceImpl implements OrdersService {
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("type", 1);
         paramMap.put("orderId", orders.getId());
-        paramMap.put("content","订单号: "+orders.getNumber());
+        paramMap.put("content", "订单号: " + orders.getNumber());
         log.info("向客户端推送消息", paramMap);
         webSocketServer.sendMessageToAllClient(JSONObject.toJSONString(paramMap));
 
@@ -528,7 +527,7 @@ public class OrdersServiceImpl implements OrdersService {
                         orders.getAmount(),
                         orders.getAmount()
                 );
-               //将支付状态改为退款
+                //将支付状态改为退款
                 orders.setPayStatus(Orders.PAY_STATUS_REFUND);
             } catch (Exception e) {
                 log.error("退款失败", e);
@@ -538,5 +537,18 @@ public class OrdersServiceImpl implements OrdersService {
         //更新订单状态为已取消
         orders.setStatus(Orders.ORDER_STAUTS_CANCELLED);
         ordersMapper.update(orders);
+    }
+
+    @Override
+    public void reminder(Long id) throws IOException {
+        log.info("客户催单:{}", id);
+
+        OrdersDetailVO ordersDetailVO = ordersService.getOrdersDetailById(id);
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("type", 2);
+        paramMap.put("orderId", id);
+        paramMap.put("content", "订单号: " + ordersDetailVO.getNumber());
+        log.info("向客户端推送消息", paramMap);
+        webSocketServer.sendMessageToAllClient(JSONObject.toJSONString(paramMap));
     }
 }

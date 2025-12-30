@@ -98,4 +98,15 @@ public class OrdersController {
         ordersService.again(id);
         return Result.success();
     }
+
+    /**
+     * 催单
+     */
+    @ApiOperation("催单")
+    @GetMapping("/reminder/{id}")
+    public Result reminder(@PathVariable Long id) throws Exception {
+        log.info("客户催单，订单id:{}", id);
+        ordersService.reminder(id);
+        return Result.success();
+    }
 }

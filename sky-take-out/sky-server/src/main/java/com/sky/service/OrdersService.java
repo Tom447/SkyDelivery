@@ -48,5 +48,7 @@ public interface OrdersService {
     void complete(Long id);
 
     void adminCancel(OrdersCancelDTO ordersCancelDTO);
+
+    void reminder(Long id) throws IOException;
 }
 

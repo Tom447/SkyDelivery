@@ -147,13 +147,12 @@
             <if test="status != null">
                 status = #{status}
             </if>
-            <if test="begin != null and end != null">
-                and order_time between #{begin} and #{end}
+            <if test="beginTime != null and endTime != null">
+                and order_time between #{beginTime} and #{endTime}
             </if>
         </where>
         group by DATE_FORMAT(order_time, '%Y-%m-%d')
-        order by DATE_FORMAT(order_time, '%Y-%m-%d');
-
+        order by DATE_FORMAT(order_time, '%Y-%m-%d')
     </select>
 
 </mapper>

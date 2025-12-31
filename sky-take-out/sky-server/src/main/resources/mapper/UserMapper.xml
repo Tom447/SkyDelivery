@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sky.mapper.UserMapper">
+
+
+    <select id="countAndByCreateTime" resultType="com.sky.dto.UserReportDTO">
+        <!--查询指定范围内每一天的新增用户-->
+        select DATE_FORMAT(create_time, '%Y-%m-%d') createDate,
+               count(*) userCount
+        from user
+        <where>
+            <if test="beginTime!= null and endTime != null">
+                and create_time between #{beginTime} and #{endTime}
+            </if>
+        </where>
+        group by DATE_FORMAT(create_time, '%Y-%m-%d')
+        order by DATE_FORMAT(create_time, '%Y-%m-%d')
+
+    </select>
+</mapper>

@@ -30,6 +30,6 @@ public interface OrdersMapper {
     @Select("select * from orders where status = #{status} and order_time < #{before15Time}")
     List<Orders> selectByStatusAndLtTime(int status, LocalDateTime before15Time);
 
-    List<TurnoverReportDTO> selectTurnoverStatistics(LocalDateTime begin, LocalDateTime end, Integer status);
+    List<TurnoverReportDTO> selectTurnoverStatistics(LocalDateTime beginTime, LocalDateTime endTime, Integer status);
 }
 

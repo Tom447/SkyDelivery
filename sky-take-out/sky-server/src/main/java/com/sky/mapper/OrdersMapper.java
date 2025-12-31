@@ -1,12 +1,14 @@
 package com.sky.mapper;
 
 
+import com.sky.dto.OrderReportDTO;
 import com.sky.dto.TurnoverReportDTO;
 import com.sky.entity.Orders;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -31,5 +33,7 @@ public interface OrdersMapper {
     List<Orders> selectByStatusAndLtTime(int status, LocalDateTime before15Time);
 
     List<TurnoverReportDTO> selectTurnoverStatistics(LocalDateTime beginTime, LocalDateTime endTime, Integer status);
+
+    List<OrderReportDTO> countOrdersByOrderTimeAndStatus(LocalDateTime beginTime, LocalDateTime endTime, Integer status);
 }
 

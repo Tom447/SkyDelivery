@@ -1,12 +1,14 @@
 package com.sky.service.impl;
 
 
+import com.sky.dto.OrderReportDTO;
 import com.sky.dto.TurnoverReportDTO;
 import com.sky.dto.UserReportDTO;
 import com.sky.entity.Orders;
 import com.sky.mapper.OrdersMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
+import com.sky.vo.OrderReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import lombok.extern.slf4j.Slf4j;
@@ -109,6 +111,43 @@ public class ReportServiceImpl implements ReportService {
         }
 
         return new UserReportVO(dateList, totalUserList, newUserList);
+    }
+
+    @Override
+    public OrderReportVO ordersStatistics(LocalDate begin, LocalDate end) {
+        //1.获取日期列表
+        List<String> dateList = getDateList(begin, end);
+        //2.1获取每日的订单总数列表
+        LocalDateTime beginTime = LocalDateTime.of(begin, LocalTime.MIN);
+        LocalDateTime endTime = LocalDateTime.of(end, LocalTime.MAX);
+        List<OrderReportDTO> ordersByDayList = ordersMapper.countOrdersByOrderTimeAndStatus(beginTime, endTime, null);
+        //2.2形成映射的map
+        Map<String, Integer> ordersByDayMap = ordersByDayList.stream().collect(Collectors.toMap(OrderReportDTO::getOrderDate, OrderReportDTO::getOrderCount));
+        //2.3得到需要的list
+        List<Integer> orderCountList = dateList.stream().map(date -> {
+            return ordersByDayMap.get(date) == null ? 0 : ordersByDayMap.get(date);
+        }).collect(Collectors.toList());
+        
+        //3.获取每日的有效订单总数
+        //3.1获取原始数据
+        List<OrderReportDTO> validOrdersByDayList = ordersMapper.countOrdersByOrderTimeAndStatus(beginTime, endTime, Orders.ORDER_STAUTS_COMPLETED);
+        //3.2得到原始数据的map
+        Map<String, Integer> validOrdersByDayMap = validOrdersByDayList.stream().collect(Collectors.toMap(OrderReportDTO::getOrderDate, OrderReportDTO::getOrderCount));
+        //3.3构造成需要的结果validOrderCountList
+        List<Integer> validOrderCountList = dateList.stream().map(date -> {
+            return validOrdersByDayMap.get(date) == null ? 0 : validOrdersByDayMap.get(date);
+        }).collect(Collectors.toList());
+        //4.获取订单的总数量
+        Integer totalOrderCount =  ordersByDayList.stream().mapToInt(OrderReportDTO::getOrderCount).sum();
+        //5.获取有效的订单数量
+        Integer validOrderCount =  validOrdersByDayList.stream().mapToInt(OrderReportDTO::getOrderCount).sum();
+        //6.订单的完成率
+        Double orderCompletionRate = (totalOrderCount != 0)
+                ? (double) validOrderCount / totalOrderCount
+                : 0.0;
+
+
+        return new OrderReportVO(dateList, orderCountList, validOrderCountList, totalOrderCount, validOrderCount, orderCompletionRate);
     }
 
     /**

@@ -138,5 +138,22 @@
         </where>
         ORDER BY order_time DESC
     </select>
+    <select id="selectTurnoverStatistics" resultType="com.sky.dto.TurnoverReportDTO">
+        select
+            DATE_FORMAT(order_time, '%Y-%m-%d') orderDate,
+            sum(amount) orderMoney
+        from orders
+        <where>
+            <if test="status != null">
+                status = #{status}
+            </if>
+            <if test="begin != null and end != null">
+                and order_time between #{begin} and #{end}
+            </if>
+        </where>
+        group by DATE_FORMAT(order_time, '%Y-%m-%d')
+        order by DATE_FORMAT(order_time, '%Y-%m-%d');
+
+    </select>
 
 </mapper>

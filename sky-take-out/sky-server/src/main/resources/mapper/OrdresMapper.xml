@@ -169,5 +169,19 @@
         group by DATE_FORMAT(order_time, '%Y-%m-%d')
         order by DATE_FORMAT(order_time, '%Y-%m-%d')
     </select>
+    <select id="top10" resultType="com.sky.dto.SalesTop10ReportDTO">
+        select od.name setmealOrDishName, count(*) setmealOrDishNumber
+        from orders o,
+        order_detail od
+        <where>
+            o.id = od.id
+            <if test="beginTime != null and endTime != null">
+                and order_time between #{beginTime} and #{endTime}
+            </if>
+            and o.status = 5
+        </where>
+        group by od.name
+        order by setmealOrDishNumber desc limit 10;
+    </select>
 
 </mapper>

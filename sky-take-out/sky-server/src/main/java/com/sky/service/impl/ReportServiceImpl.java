@@ -2,6 +2,7 @@ package com.sky.service.impl;
 
 
 import com.sky.dto.OrderReportDTO;
+import com.sky.dto.SalesTop10ReportDTO;
 import com.sky.dto.TurnoverReportDTO;
 import com.sky.dto.UserReportDTO;
 import com.sky.entity.Orders;
@@ -9,6 +10,7 @@ import com.sky.mapper.OrdersMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
 import com.sky.vo.OrderReportVO;
+import com.sky.vo.SalesTop10ReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import lombok.extern.slf4j.Slf4j;
@@ -123,7 +125,7 @@ public class ReportServiceImpl implements ReportService {
         List<OrderReportDTO> ordersByDayList = ordersMapper.countOrdersByOrderTimeAndStatus(beginTime, endTime, null);
         //2.2形成映射的map
         Map<String, Integer> ordersByDayMap = ordersByDayList.stream().collect(Collectors.toMap(OrderReportDTO::getOrderDate, OrderReportDTO::getOrderCount));
-        //2.3得到需要的list
+        //2.3得到需要的orderCountList
         List<Integer> orderCountList = dateList.stream().map(date -> {
             return ordersByDayMap.get(date) == null ? 0 : ordersByDayMap.get(date);
         }).collect(Collectors.toList());
@@ -138,16 +140,33 @@ public class ReportServiceImpl implements ReportService {
             return validOrdersByDayMap.get(date) == null ? 0 : validOrdersByDayMap.get(date);
         }).collect(Collectors.toList());
         //4.获取订单的总数量
-        Integer totalOrderCount =  ordersByDayList.stream().mapToInt(OrderReportDTO::getOrderCount).sum();
+//        Integer totalOrderCount =  ordersByDayList.stream().mapToInt(OrderReportDTO::getOrderCount).sum();
+        Integer totalOrderCount = orderCountList.stream().reduce(Integer::sum).get();
         //5.获取有效的订单数量
-        Integer validOrderCount =  validOrdersByDayList.stream().mapToInt(OrderReportDTO::getOrderCount).sum();
+//        Integer validOrderCount =  validOrdersByDayList.stream().mapToInt(OrderReportDTO::getOrderCount).sum();
+        Integer validOrderCount = validOrderCountList.stream().reduce(Integer::sum).get();
+
         //6.订单的完成率
         Double orderCompletionRate = (totalOrderCount != 0)
                 ? (double) validOrderCount / totalOrderCount
                 : 0.0;
-
-
         return new OrderReportVO(dateList, orderCountList, validOrderCountList, totalOrderCount, validOrderCount, orderCompletionRate);
+    }
+
+    @Override
+    public SalesTop10ReportVO top10(LocalDate begin, LocalDate end) {
+        LocalDateTime beginTime = LocalDateTime.of(begin, LocalTime.MIN);
+        LocalDateTime endTime = LocalDateTime.of(end, LocalTime.MAX);
+        List<SalesTop10ReportDTO> list = ordersMapper.top10(beginTime, endTime);
+
+        List<String> nameList = new ArrayList<>();
+        List<Integer> numberList = new ArrayList<>();
+        list.stream().forEach(item ->{
+            nameList.add(item.getSetmealOrDishName());
+            numberList.add(item.getSetmealOrDishNumber());
+        });
+
+        return new SalesTop10ReportVO(nameList, numberList);
     }
 
     /**

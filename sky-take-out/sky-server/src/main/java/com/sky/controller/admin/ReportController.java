@@ -73,4 +73,15 @@ public class ReportController {
         SalesTop10ReportVO salesTop10ReportVO = reportService.top10(begin, end);
         return Result.success(salesTop10ReportVO);
     }
+
+    // /admin/report/export
+
+    @ApiOperation("导出统计数据到Excel")
+    @GetMapping("/export")
+    public void exportData() throws Exception {
+        log.info("导出数据");
+        reportService.exportData();
+        return;
+    }
+
 }

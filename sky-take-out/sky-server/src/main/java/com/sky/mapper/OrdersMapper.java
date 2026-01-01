@@ -5,6 +5,7 @@ import com.sky.dto.OrderReportDTO;
 import com.sky.dto.SalesTop10ReportDTO;
 import com.sky.dto.TurnoverReportDTO;
 import com.sky.entity.Orders;
+import com.sky.vo.BusinessDataVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Select;
@@ -38,5 +39,7 @@ public interface OrdersMapper {
     List<OrderReportDTO> countOrdersByOrderTimeAndStatus(LocalDateTime beginTime, LocalDateTime endTime, Integer status);
 
     List<SalesTop10ReportDTO> top10(LocalDateTime beginTime, LocalDateTime endTime);
+
+    BusinessDataVO countByTime(LocalDateTime beginTime, LocalDateTime endTime);
 }
 

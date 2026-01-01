@@ -48,4 +48,7 @@ public interface UserMapper {
      */
     @Select("select count(*) from user where create_time < #{beginTime}")
     Integer countTotalByCreateTime(LocalDateTime beginTime);
+
+
+    Integer countByTime(LocalDateTime beginTime, LocalDateTime endTime);
 }

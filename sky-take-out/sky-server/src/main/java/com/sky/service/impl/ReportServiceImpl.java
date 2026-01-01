@@ -9,16 +9,23 @@ import com.sky.entity.Orders;
 import com.sky.mapper.OrdersMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
-import com.sky.vo.OrderReportVO;
-import com.sky.vo.SalesTop10ReportVO;
-import com.sky.vo.TurnoverReportVO;
-import com.sky.vo.UserReportVO;
+import com.sky.vo.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
+import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -129,7 +136,7 @@ public class ReportServiceImpl implements ReportService {
         List<Integer> orderCountList = dateList.stream().map(date -> {
             return ordersByDayMap.get(date) == null ? 0 : ordersByDayMap.get(date);
         }).collect(Collectors.toList());
-        
+
         //3.获取每日的有效订单总数
         //3.1获取原始数据
         List<OrderReportDTO> validOrdersByDayList = ordersMapper.countOrdersByOrderTimeAndStatus(beginTime, endTime, Orders.ORDER_STAUTS_COMPLETED);
@@ -161,12 +168,67 @@ public class ReportServiceImpl implements ReportService {
 
         List<String> nameList = new ArrayList<>();
         List<Integer> numberList = new ArrayList<>();
-        list.stream().forEach(item ->{
+        list.stream().forEach(item -> {
             nameList.add(item.getSetmealOrDishName());
             numberList.add(item.getSetmealOrDishNumber());
         });
 
         return new SalesTop10ReportVO(nameList, numberList);
+    }
+
+
+    @Autowired
+    private HttpServletResponse response;
+    //导出统计数据
+    @Override
+    public void exportData() throws Exception {
+        //1.近一个月的时间 - 开始，结束
+        LocalDate begin = LocalDate.now().minusDays(30);
+        LocalDate end = LocalDate.now().minusDays(1);
+
+        //2.调用mapper查询数据库中的原始数据 -- 数据概览
+
+        BusinessDataVO businessDataVO = ordersMapper.countByTime(LocalDateTime.of(begin, LocalTime.MIN), LocalDateTime.of(end, LocalTime.MAX));
+        Integer newUserCount = userMapper.countByTime(LocalDateTime.of(begin, LocalTime.MIN), LocalDateTime.of(end, LocalTime.MAX));
+
+        String rangeDate = "时间范围： " + begin.toString() + " 到 " + end.toString();
+        //3.1      加载报表Excel模版文件
+        InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("templates/运营数据报表模板.xlsx");
+        Workbook workbook = new XSSFWorkbook(inputStream);
+        Sheet sheet = workbook.getSheetAt(0);
+        //3.2      定位单元格，然后填充数据
+        sheet.getRow(1).getCell(1).setCellValue(rangeDate);//2026年1月1日20:35:14
+        sheet.getRow(3).getCell(2).setCellValue(businessDataVO.getTurnover());//营业额
+        sheet.getRow(3).getCell(4).setCellValue(businessDataVO.getOrderCompletionRate());//订单完成率
+        sheet.getRow(3).getCell(6).setCellValue(newUserCount);//新增用户数
+        sheet.getRow(4).getCell(2).setCellValue(businessDataVO.getValidOrderCount());//有效订单
+        sheet.getRow(4).getCell(4).setCellValue(businessDataVO.getUnitPrice());//平均客单价
+
+
+        //4.调用mapper查询数据库中的原始数据 -- 每一天的明细数据
+        for (int i = 0; i < 30; i++){
+            LocalDate everyDate = begin.plusDays(i);
+            //  查询每一天的运营信息
+            BusinessDataVO _businessDataVO = ordersMapper.countByTime(LocalDateTime.of(everyDate, LocalTime.MIN), LocalDateTime.of(everyDate, LocalTime.MAX));
+            Integer _newUserCount = userMapper.countByTime(LocalDateTime.of(everyDate, LocalTime.MIN), LocalDateTime.of(everyDate, LocalTime.MAX));
+        //5.填充明细数据
+
+            //  填充数据
+            Row row = sheet.getRow(7 + i);
+            row.getCell(1).setCellValue(everyDate.toString());//日期
+            row.getCell(2).setCellValue(_businessDataVO.getTurnover());//营业额
+            row.getCell(3).setCellValue(_businessDataVO.getValidOrderCount());//有效订单数
+            row.getCell(4).setCellValue(_businessDataVO.getOrderCompletionRate());//订单完成率
+            row.getCell(5).setCellValue(_businessDataVO.getUnitPrice());//评价客单价
+            row.getCell(6).setCellValue(_newUserCount);//新增用户数
+        }
+
+        //6.下载文件 -- 流
+        ServletOutputStream outputStream = response.getOutputStream();
+        workbook.write(outputStream);//将Excel作为流响应给浏览器，浏览器接触到流数据会自动下载
+        //7.释放资源
+        workbook.close();
+        outputStream.close();
     }
 
     /**

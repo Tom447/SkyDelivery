@@ -18,4 +18,15 @@
         order by DATE_FORMAT(create_time, '%Y-%m-%d')
 
     </select>
+    <select id="countByTime" resultType="java.lang.Integer">
+        select count(*) from user
+        <where>
+            <if test="beginTime != null">
+                and create_time > #{beginTime}
+            </if>
+            <if test="endTime != null">
+                and create_time &lt; #{endTime}
+            </if>
+        </where>
+    </select>
 </mapper>

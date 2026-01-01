@@ -154,6 +154,8 @@
         group by DATE_FORMAT(order_time, '%Y-%m-%d')
         order by DATE_FORMAT(order_time, '%Y-%m-%d')
     </select>
+
+
     <select id="countOrdersByOrderTimeAndStatus" resultType="com.sky.dto.OrderReportDTO">
         select DATE_FORMAT(order_time, '%Y-%m-%d') orderDate,
         count(*) orderCount
@@ -169,6 +171,7 @@
         group by DATE_FORMAT(order_time, '%Y-%m-%d')
         order by DATE_FORMAT(order_time, '%Y-%m-%d')
     </select>
+
     <select id="top10" resultType="com.sky.dto.SalesTop10ReportDTO">
         select od.name setmealOrDishName, count(*) setmealOrDishNumber
         from orders o,
@@ -182,6 +185,15 @@
         </where>
         group by od.name
         order by setmealOrDishNumber desc limit 10;
+    </select>
+    <select id="countByTime" resultType="com.sky.vo.BusinessDataVO">
+        <!-- 根据条件动态统计订单总数 -->
+        select count(if(status=5, 1, null)) validOrderCount,
+        ifnull(sum(if(status=5, amount, 0)), 0) turnover,
+        ifnull(count(if(status=5, 1, null)) / count(*), 0) orderCompletionRate,
+        ifnull(sum(if(status=5, amount, 0)) / count(if(status=5, 1, null)), 0) unitPrice
+        from orders
+        where order_time between #{beginTime} and #{endTime}
     </select>
 
 </mapper>
